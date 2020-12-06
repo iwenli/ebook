@@ -5,7 +5,7 @@ License: Copyright © 2020 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-11-30 11:53:12
 LastEditors: iwenli
-LastEditTime: 2020-12-01 16:25:50
+LastEditTime: 2020-12-06 11:25:54
 Description: 数据库操作实体
 '''
 __author__ = 'iwenli'
@@ -25,9 +25,9 @@ sys.path.append(os.path.abspath("."))
 # ? sqlalchemy 官方文档 https://docs.sqlalchemy.org/en/13/orm/tutorial.html#create-an-instance-of-the-mapped-class
 ebook_engine = create_engine(
     conf.dbEbookConStr,
-    echo=True,  # 当设置为True时会将orm语句转化为sql语句打印，一般debug的时候可用
-    pool_size=8,  # 连接池的大小，默认为5个，设置为0时表示连接无限制
-    pool_recycle=60 * 30)  # 设置时间以限制数据库多久没连接自动断开
+    # echo=True,  # 当设置为True时会将orm语句转化为sql语句打印，一般debug的时候可用
+    pool_size=10,  # 连接池的大小，默认为5个，设置为0时表示连接无限制
+    pool_recycle=60 * 30)  # 设置限制数据库  30分钟 没连接自动断开
 
 EBookEntityBase = declarative_base()
 EBookSession = sessionmaker(bind=ebook_engine)
@@ -76,7 +76,7 @@ class Book(EBookEntityBase):
     WordNums = Column(BigInteger, nullable=True)
     Process = Column(Boolean, nullable=True, default=False)
     AddTime = Column(DateTime, nullable=True)
-        
+
     def __init__(self, name, author, desc, id, subId, rate, cover, status,
                  wordNums):
         '''

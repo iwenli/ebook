@@ -5,7 +5,7 @@ License: Copyright © 2020 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-12-04 15:52:07
 LastEditors: iwenli
-LastEditTime: 2020-12-04 17:37:31
+LastEditTime: 2020-12-05 21:51:55
 Description: 新笔趣阁
 '''
 __author__ = 'iwenli'
@@ -39,8 +39,11 @@ def get_chapters(book_name):
     chapters = []
     for tag in tag_dds:
         a = tag.find('a')
+        name = a.string
+        if name is None:
+            name = ''
         chapter = {
-            "name": a.string,
+            "name": name,
             "url": 'http://www.xbiquge.la' + a.get('href')
         }
         chapters.append(chapter)

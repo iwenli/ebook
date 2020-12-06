@@ -5,7 +5,7 @@ License: Copyright © 2020 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-11-30 15:50:37
 LastEditors: iwenli
-LastEditTime: 2020-12-04 18:08:53
+LastEditTime: 2020-12-05 18:50:24
 Description: 调度器
 '''
 __author__ = 'iwenli'
@@ -224,11 +224,11 @@ def download_chapter(top=10):
 
 if __name__ == "__main__":
     # 分类信息
-    # spider_category()
+    spider_category()
 
     # 书籍信息
     # spider_book_info_by_task()
-    # spider_book_info_by_category()
+    spider_book_info_by_category()
 
     # 章节信息
     # spider_chapter()

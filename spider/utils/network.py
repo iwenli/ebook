@@ -5,7 +5,7 @@ License: Copyright © 2020 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-11-30 10:41:59
 LastEditors: iwenli
-LastEditTime: 2020-12-04 17:57:11
+LastEditTime: 2020-12-05 22:24:03
 Description: 网络请求
 '''
 __author__ = 'iwenli'
@@ -47,9 +47,11 @@ class Http(object):
         if (useproxy):
             self.proxy = Http.get_proxys()
 
-    # 最大重试3次，3次全部报错，才会报错
+    # 最大重试3次，3次全部报错，才会报错,每次重试间隔 2秒-10秒
 
-    @retry(stop_max_attempt_number=3, wait_random_min=10, wait_random_max=30)
+    @retry(stop_max_attempt_number=3,
+           wait_random_min=2000,
+           wait_random_max=10000)
     def get_internal(self, url):
         '''
         get请求的出口
@@ -66,8 +68,8 @@ class Http(object):
                                 timeout=30)
         # 超时的时候回报错并重试
 
-        if (response.status_code != 200):
-            print(f'{url}请求状态{response.status_code}，马上重试')
+        # if (response.status_code != 200):
+        #     print(f'{url}请求状态{response.status_code}，马上重试')
 
         assert response.status_code == 200  # 状态码不是200，也会报错
         return response
