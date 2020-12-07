@@ -443,3 +443,5 @@ $RECYCLE.BIN/
 
 _download/
 _log/
+
+.vscode/
