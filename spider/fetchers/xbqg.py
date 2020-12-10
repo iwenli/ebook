@@ -5,8 +5,13 @@ License: Copyright © 2020 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-12-04 15:52:07
 LastEditors: iwenli
+<<<<<<< HEAD
+LastEditTime: 2020-12-10 11:05:54
+Description: 新笔趣阁
+=======
 LastEditTime: 2020-12-09 21:59:03
 Description: 新笔趣阁 http://www.xbiquge.la
+>>>>>>> 1c6af9c56fd19fbb8422b972516d899fa823904f
 '''
 __author__ = 'iwenli'
 import sys
@@ -99,16 +104,14 @@ def get_chapter_content(chapter):
     if (chapter is None):
         return
 
-    if (chapter.Status == 0):
-        # 开始缓存文字
-        sp = http.get_beautifulsoup(chapter.Url)
-        content = sp.find(id='content')
-        if (content is None):
-            return
-
-        content.p.decompose()  # 去除底部广告
-        ebook_txts = content.text.replace('\xa0', '')  # 去除特殊字符
-        return ebook_txts
+    # 开始缓存文字
+    sp = http.get_beautifulsoup(chapter.Url)
+    content = sp.find(id='content')
+    if (content is None):
+        return
+    content.p.decompose()  # 去除底部广告
+    ebook_txts = content.text.replace('\xa0', '')  # 去除特殊字符
+    return ebook_txts
 
 
 if __name__ == "__main__":
