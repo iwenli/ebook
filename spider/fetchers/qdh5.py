@@ -5,7 +5,7 @@ License: Copyright © 2020 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-11-30 11:52:08
 LastEditors: iwenli
-LastEditTime: 2020-12-01 15:30:45
+LastEditTime: 2020-12-09 21:20:57
 Description: 起点H5
 '''
 __author__ = 'iwenli'
@@ -90,7 +90,6 @@ def get_book(book_name):
     rate_tag = layout.find('span', class_='star-score')
     if rate_tag is not None:
         rate = rate_tag.text
-    # category
     book = {
         'name': name,
         'author': author.replace('\n', ''),
