@@ -5,7 +5,7 @@ License: Copyright © 2019 txooo.com Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-12-05 18:55:51
 LastEditors: iwenli
-LastEditTime: 2020-12-06 20:34:34
+LastEditTime: 2020-12-08 18:18:20
 Description: 处理书籍内容   简单的生产者模式
 '''
 __author__ = 'iwenli'
@@ -19,52 +19,49 @@ from db.entities import EBookSession, BookTask, Book, Category, Chapter
 from pyiwenli.handlers import LogHandler
 from pyiwenli.utils import timeit
 from utils.helpers import file
+from utils.myexceptions import NotDownloadChapterException
 
 
 class Worker(object):
     """
     完整处理书籍
     """
-    __limit = 0
-    __book_id = 100
-
-    __thread_num = 5
-
-    __book_queue = Queue(0)
-    __chapter_queue = Queue(0)
-
-    def __init__(self, thread_num=5):
+    def __init__(self):
         self.log = LogHandler('worker')
-        self.__thread_num = thread_num
-        self._init_data()
-        self._info()
-
-    def _info(self):
-        _fix = "全局"
-        self.log.info(f"[{_fix}] 线程数：{self.__thread_num}")
-        self.log.info(f"[{_fix}] 待处理书籍 ：{self.__book_queue.qsize()}")
-        self.log.info(f"[{_fix}] 待处理章节 ：{self.__chapter_queue.qsize()}")
+        self.__book_queue = Queue(0)
+        self.__chapter_queue = Queue(0)
 
     @timeit('初始化数据')
-    def _init_data(self):
-        """初始化数据
+    def __init_data(self, top_book=0, top_chapter=0, fix="[全局]"):
+        """[初始化数据]
+
+        Args:
+            top_book ([int]): [书籍数量]
+            top_chapter ([type]): [章节数]
+            fix ([string]): [日志前缀]
         """
-        _fix = "全局"
-        self.log.info(f"[{_fix}] 开始提取数据...")
+        self.log.info(
+            f"{fix} 开始提取数据[top_book={top_book},top_chapter={top_chapter}]...")
         session = EBookSession()
-        books = session.query(Book).filter(Book.Process == False).filter(
-            Book.Id >= self.__book_id).limit(self.__limit).all()
-        # chapters = session.query(Chapter).filter(Chapter.Status == 0).limit(
-        #     self.__limit).all()
+
+        if top_book > 0:
+            books = session.query(Book).filter(Book.Process == False).filter(
+                Book.Id >= 0).limit(top_book).all()
+            for book in books:
+                self.__book_queue.put(book)
+
+        if top_chapter > 0:
+            chapters = session.query(Chapter).filter(
+                Chapter.Status == 0).limit(top_chapter).all()
+            for chapter in chapters:
+                self.__chapter_queue.put(chapter)
+
         session.close()
+        self.log.info(
+            f"{fix} 提取数据完成,书籍[{self.__book_queue.qsize()}],章节[{self.__chapter_queue.qsize()}]..."
+        )
 
-        for book in books:
-            self.__book_queue.put(book)
-        # for chapter in chapters:
-        #     self.__chapter_queue.put(chapter)
-        self.log.info(f"[{_fix}] 提取数据完成...")
-
-    def fether_chapter(self, id):
+    def __fether_chapter(self, id):
         """获取数据章节信息工作函数
 
         Args:
@@ -80,14 +77,14 @@ class Worker(object):
         while not self.__book_queue.empty():
             book = self.__book_queue.get()
             index += 1
-            msg = f"{fix}[{index}/{self.__book_queue.qsize()}]处理书籍 {book.Name}"
+            msg = f"{fix}[{index}/{self.__book_queue.qsize()}]处理书籍 {book.Id}-{book.Name}"
             try:
                 chapters = xbqg.get_chapters(book.Name)
                 if chapters is None:
                     continue
                 total = 0
-                for index, chapter in enumerate(chapters):
-                    total = index + 1
+                for i, chapter in enumerate(chapters):
+                    total = i + 1
                     model = Chapter(book.Id, total, chapter['name'],
                                     chapter['url'])
                     # 加入数据库
@@ -115,7 +112,7 @@ class Worker(object):
         session.close()
         self.log.info(f"{fix} 执行完成")
 
-    def download_chapter(self, id):
+    def __download_chapter(self, id):
         """下载章节
 
         Args:
@@ -137,7 +134,7 @@ class Worker(object):
 
             index += 1
             chapter = self.__chapter_queue.get()
-            msg = f"{fix}[{index}/{self.__chapter_queue.qsize()}]下载章节 {chapter.Name}"
+            msg = f"{fix}[{index}/{self.__chapter_queue.qsize()}]下载章节 {chapter.BookId}-{chapter.Id}-{chapter.Name}"
             try:
                 content = xbqg.get_chapter_content(chapter)
                 if content is None:
@@ -169,41 +166,9 @@ class Worker(object):
         session.close()
         self.log.info(f"{fix} 执行完成")
 
-    def run(self):
-        """执行任务
-        """
-
-        _fix = "全局"
-        self.log.info(f"[{_fix}] 初始化线程...")
-        # 抓取章节线程 1
-        fether_job = Thread(target=self.fether_chapter, args=(1, ))
-        fether_job.setDaemon(True)
-        fether_job.start()
-
-        self.log.info(f"[{_fix}] 抓取章节线程启动完成...")
-
-        # 防止没有 章节下载
-        time.sleep(2)
-
-        # 下载章节使用多线程
-        for i in range(self.__thread_num):
-            download_job = Thread(target=self.download_chapter, args=(i + 1, ))
-            download_job.setDaemon(True)
-            download_job.start()
-
-        self.log.info(f"[{_fix}] 下载章节线程启动完成...")
-
-        self.__book_queue.join()
-        self.log.info(f"[{_fix}] 抓取章节完成...")
-
-        self.__chapter_queue.join()
-        self.log.info(f"[{_fix}] 下载章节完成...")
-
-        self.log.info(f"[{_fix}] 全部完成，退出...")
-
     # !书籍信息
 
-    def generate_book_model(self, **dic):
+    def __generate_book_model(self, **dic):
         """将书籍字典转换为DBModel
 
         Returns:
@@ -236,26 +201,27 @@ class Worker(object):
                     dic['rate'], dic['cover'], dic['status'], dic['wordNums'])
 
     @timeit('书籍搜索')
-    def spider_book_info_by_task(self):
+    def __spider_book_info_by_task(self):
         """ 根据 task 抓取 book_info
         """
-        _name = '书籍搜索'
-        self.log.info(f"[{_name}]模块开始处理")
+        fix = '[书籍搜索]'
+        self.log.info(f"{fix}开始处理...")
         session = EBookSession()
         session.expire_on_commit = False
         tasks = session.query(BookTask).filter_by(Process=False).all()
-        self.log.info(f"[{_name}]待处理数据 {len(tasks)} 条")
-        for task in tasks:
+        total = len(tasks)
+        for i, task in enumerate(tasks):
             book_name = task.Name
-
+            _fix = f"{fix}[{i+1}/{total}] {book_name}"
+            self.log.info(f"{_fix} 开始...")
             if cacheContext.exists_book(book_name) is False:
                 # 不存在
                 book = qdh5.get_book(task.Name)
                 if book is None:
                     continue
-                model = self.generate_book_model(**book)
+                model = self.__generate_book_model(**book)
 
-                self.log.info(f"[{_name}]提取到书籍：{book}")
+                self.log.info(f"{_fix} 提取到书籍：{book}")
                 session.add(model)
                 session.commit()
 
@@ -265,22 +231,23 @@ class Worker(object):
             task.Process = True
         session.commit()
         session.close()
-        self.log.info(f"[{_name}]模块处理完成...")
+        self.log.info(f"{fix}处理完成...")
 
     @timeit('分类书籍提取')
-    def spider_book_info_by_category(self):
+    def __spider_book_info_by_category(self):
         """ 根据 category 抓取 book_info
         """
 
-        _name = '分类书籍提取'
-        self.log.info(f"[{_name}]模块开始处理")
+        fix = "[分类书籍提取]"
+        self.log.info(f"{fix} 开始处理...")
 
         session = EBookSession()
         session.expire_on_commit = False
         categories = cacheContext.get_all_category()
-        self.log.info(f"[{_name}]分类数量：{len(categories)}")
-        for category in categories:
-            self.log.info(f"[{_name}]处理分类：{category.Name}")
+        total = len(categories)
+        for i, category in enumerate(categories):
+            _fix = f"{fix}[{i+1}/{total}] {category.Id}-{category.Name}"
+            self.log.info(f"{_fix} 开始...")
             subId = category.Id
             id = category.ParentId
             if id == 0:
@@ -292,11 +259,11 @@ class Worker(object):
                 if cacheContext.exists_book(book['name']) is True:
                     continue
                 # 不存在
-                model = self.generate_book_model(**book)
+                model = self.__generate_book_model(**book)
                 model.CategoryId = id
                 model.SubCategoryId = subId
 
-                self.log.info(f"[{_name}]提取到书籍：{model}")
+                self.log.info(f"{_fix} 提取到书籍：{model}")
                 session.add(model)
                 session.commit()
 
@@ -305,11 +272,171 @@ class Worker(object):
             # 一次目录一次提交
             session.commit()
         session.close()
-        self.log.info(f"[{_name}]模块处理完成...")
+        self.log.info(f"{fix} 处理完成...")
+
+    def __gen_thraed(self, thread_num, target):
+        """[创建线程]
+
+        Args:
+            thread_num ([int]): [线程数]
+            target ([def]): [线程委托函数]
+        """
+        for i in range(thread_num):
+            task = Thread(target=target, args=(i + 1, ))
+            task.setDaemon(True)
+            task.start()
+
+    def __wait(self, fix):
+        """[等待队列任务完成]
+
+        Args:
+            fix ([string]): [日志前缀]
+        """
+        self.__book_queue.join()
+        self.log.info(f"{fix} 抓取章节完成...")
+
+        self.__chapter_queue.join()
+        self.log.info(f"{fix} 下载章节完成...")
+
+        self.log.info(f"{fix} 全部完成，退出...")
+
+    def run_category_spider_download(self, thread_num=5):
+        """[从分类同步下载书籍后走完整流程]
+        """
+        fix = "[分类]"
+        self.log.info(f"{fix} 开始执行...")
+
+        self.__spider_book_info_by_category()
+        self.__gen_thraed(1, self.__fether_chapter)
+        self.__gen_thraed(thread_num, self.__download_chapter)
+        self.__wait(fix)
+
+    def run_task_spider_download(self, thread_num=5):
+        """[从搜索下载书籍后走完整流程]
+        """
+        fix = "[搜索]"
+        self.log.info(f"{fix} 开始执行...")
+
+        self.__spider_book_info_by_task()
+        self.__gen_thraed(1, self.__fether_chapter)
+        self.__gen_thraed(thread_num, self.__download_chapter)
+        self.__wait(fix)
+
+    def run_spider_download(self,
+                            top_book=1000,
+                            top_chapter=1000,
+                            thread_num=5):
+        """[抓取书籍章节 && 下载章节]
+        
+        Args:
+            top_book ([int]):    [提取书籍数量]
+            top_chapter ([int]): [提取章节数量]
+            thread_num ([type]): [下载线程数]
+        """
+        fix = "[获取&下载章节]"
+        self.log.info(f"{fix} 开始执行...")
+        self.__init_data(top_book, top_chapter, fix)
+        self.__gen_thraed(1, self.__fether_chapter)
+        self.__gen_thraed(thread_num, self.__download_chapter)
+        self.__wait(fix)
+
+    def run_download(self, top_chapter=1000, thread_num=5):
+        """[下载章节]
+
+        Args:
+            top_chapter ([int]): [提取章节数量]
+            thread_num ([type]): [下载线程数]
+        """
+        fix = "[下载章节]"
+        self.log.info(f"{fix} 开始执行...")
+        self.__init_data(0, top_chapter, fix)
+        self.__gen_thraed(thread_num, self.__download_chapter)
+        self.__wait(fix)
+
+    @timeit('抓取分类')
+    def run_spider_category(self):
+        """抓取分类
+        """
+        fix = "[抓取分类]"
+        self.log.info(f"{fix}开始执行...")
+        categories = qdh5.get_categories()
+        self.log.info(f"{fix}抓取到根分类 {len(categories)} 条")
+        ebook_sesson = EBookSession()
+        for category in categories:
+            # 一级分类
+            categoryDb = cacheContext.get_category(category['name'])
+            if categoryDb is None:
+                categoryDb = Category(category['sex'], category['name'],
+                                      category['url'])
+                self.log.info(f"{fix}添加一级分类：{categoryDb}")
+                ebook_sesson.add(categoryDb)
+                ebook_sesson.commit()
+
+            # 二级分类
+            subCategories = category["subCategories"]
+            for subCategory in subCategories:
+                subCategoryDb = cacheContext.get_category(subCategory['name'])
+                if subCategoryDb is None:
+                    subCategoryDb = Category(subCategory['sex'],
+                                             subCategory['name'],
+                                             subCategory['url'], categoryDb.Id)
+                    self.log.info(f"{fix}添加二级分类：{subCategoryDb}")
+                    ebook_sesson.add(subCategoryDb)
+            ebook_sesson.commit()
+
+        self.log.info(f"{fix}执行完成...")
+        ebook_sesson.close()
+
+    def run_book_zip(self, id=0, name=None):
+        """[打包书籍]
+
+        Args:
+            id ([int]): [id]
+            id ([string]): [name]
+        """
+        fix = f'[打包书籍][{id}-{name}]'
+
+        self.log.info(f"{fix}开始...")
+        if id == 0 and name is not None:
+            id = cacheContext.get_book_id(name)
+        if id == 0:
+            return False
+
+        try:
+            exists = file.zip_book_exists(id)
+
+            if not exists:
+                session = EBookSession()
+                book = session.query(Book).filter(Book.Id == id).first()
+
+                if book is None:
+                    self.log.info(f"{fix} 不存在书籍")
+                    return False
+                chapters = session.query(Chapter).filter(
+                    Chapter.BookId == id).order_by(Chapter.SerialNums).all()
+                res = file.zip_book(book, chapters)
+                self.log.info(f"{fix}打包结果：{res}")
+                return res
+
+            self.log.info(f"{fix}完成...")
+            return True
+        except NotDownloadChapterException as ex:
+            self.log.error(ex)
+            # 开始下载
+            self.__chapter_queue.put(ex.chapter)
+            self.__download_chapter(-1)
+            return False
+        except Exception:
+            self.log.error(f"{fix}异常", stack_info=True)
+            return False
 
 
 if __name__ == '__main__':
-    worker = Worker(10)
-    worker.spider_book_info_by_task()
-    # worker.spider_book_info_by_category()
-    worker.run()
+    worker = Worker()
+    # # ! 1.同步分类
+    # # worker.run_spider_category()
+
+    # # ! 2.分类下载书籍完整信息
+    # worker.run_category_spider_download()
+    # # worker.run_download(10)
+    print(worker.run_book_zip(1766))

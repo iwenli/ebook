@@ -5,7 +5,7 @@ License: Copyright © 2020 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-12-04 15:52:07
 LastEditors: iwenli
-LastEditTime: 2020-12-05 21:51:55
+LastEditTime: 2020-12-08 14:54:37
 Description: 新笔趣阁
 '''
 __author__ = 'iwenli'
@@ -67,7 +67,7 @@ def get_chapter_content(chapter):
             return
 
         content.p.decompose()  # 去除底部广告
-        ebook_txts = content.text.replace('\xa0\xa0\xa0\xa0', '')  # 去除特殊字符
+        ebook_txts = content.text.replace('\xa0', '')  # 去除特殊字符
         return ebook_txts
 
 

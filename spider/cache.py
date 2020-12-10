@@ -5,7 +5,7 @@ License: Copyright © 2020 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-12-01 15:44:04
 LastEditors: iwenli
-LastEditTime: 2020-12-04 15:32:06
+LastEditTime: 2020-12-08 17:28:23
 Description: 缓存
 '''
 __author__ = 'iwenli'
@@ -22,6 +22,8 @@ class CacheContext(object):
     categories_cache = None
     # 当前已经存在的分类名称 set
     category_names_cache = None
+    # 已经存在的全部书籍名称和Id List
+    books_cache = None
     # 已经存在的全部书籍名称 set
     book_names_cache = None
 
@@ -32,12 +34,27 @@ class CacheContext(object):
         """刷新缓存
         """
         ebook_sesson = EBookSession()
+        CacheContext.books_cache = ebook_sesson.query(Book.Id, Book.Name).all()
         CacheContext.book_names_cache = set(
-            [book.Name for book in ebook_sesson.query(Book.Name).all()])
+            [book.Name for book in CacheContext.books_cache])
         CacheContext.categories_cache = ebook_sesson.query(Category).all()
         CacheContext.category_names_cache = set(
             [c.Name for c in CacheContext.categories_cache])
         ebook_sesson.close()
+
+    def get_book_id(self, book_name):
+        """根据书籍名称获取书籍id
+        
+        Args:
+            book_name ([string]): [书籍名称]
+
+        Returns:
+            [int]: [书籍id]
+        """
+        for book in self.books_cache:
+            if book_name == book.Name:
+                return book.Id
+        return 0
 
     def exists_book(self, book_name):
         """判断书籍是否存在，不存在同时添加到缓存中
