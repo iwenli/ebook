@@ -5,12 +5,11 @@ License: Copyright © 2020 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-11-30 10:41:59
 LastEditors: iwenli
-LastEditTime: 2020-12-05 22:24:03
+LastEditTime: 2020-12-11 13:07:45
 Description: 网络请求
 '''
 __author__ = 'iwenli'
 
-from utils.config import Conf
 import requests
 from retrying import retry
 from bs4 import BeautifulSoup
@@ -19,6 +18,7 @@ from fake_useragent import UserAgent
 import sys
 import os
 sys.path.append(os.path.abspath("."))
+from utils.config import Conf
 
 
 class Http(object):
@@ -30,6 +30,7 @@ class Http(object):
     proxy = []
 
     def get_proxys():
+        # return ['167.172.155.217:8080']
         res = requests.get('{}get_all/'.format(
             Http.conf.httpProxyBaseUrl)).json()
         ret = []
@@ -41,11 +42,28 @@ class Http(object):
         requests.get("{}delete/?proxy={}".format(Http.conf.httpProxyBaseUrl,
                                                  proxy))
 
-    def __init__(self, useproxy=False):
+    def __init__(self, useproxy=False, ips=[]):
 
         self.useproxy = useproxy
         if (useproxy):
-            self.proxy = Http.get_proxys()
+            if len(ips) > 0:
+                self.proxy = ips
+            else:
+                self.proxy = Http.get_proxys()
+
+    def check_proxy(self, url):
+        """[对指定站点检查代理]
+        """
+        ips = []
+        for ip in self.proxy:
+            try:
+                proxies = {'http': ip, 'https': ip}
+                response = requests.get(url, proxies=proxies, timeout=5)
+                if response.status_code == 200 and '小说' in response.text:
+                    ips.append(ip)
+            except Exception:
+                pass
+        print(ips)
 
     # 最大重试3次，3次全部报错，才会报错,每次重试间隔 2秒-10秒
 
@@ -98,6 +116,12 @@ class Http(object):
 
 
 if __name__ == "__main__":
-    http = Http(False)
-    rep = http.get_text('http://m.qidian.com/book/2019')
-    print(rep)
+    __IP_POOL = [
+        '218.59.139.238:80', '116.117.134.134:9999', '120.232.150.110:80',
+        '116.117.134.134:80', '39.106.223.134:80', '113.214.13.1:1080',
+        '180.250.12.10:80', '116.117.134.134:8081', '123.13.244.153:9999',
+        '62.84.70.130:80', '222.75.0.212:80'
+    ]
+    http = Http(True, __IP_POOL)
+    res = http.get_text('http://www.xbiquge.la/')
+    print(res)

@@ -5,7 +5,7 @@ License: Copyright © 2020 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-12-04 15:52:07
 LastEditors: iwenli
-LastEditTime: 2020-12-11 12:00:38
+LastEditTime: 2020-12-11 13:14:58
 Description: 新笔趣阁 http://www.xbiquge.la
 '''
 __author__ = 'iwenli'
@@ -14,8 +14,16 @@ import os
 sys.path.append(os.path.abspath("."))
 from utils.network import Http
 from db.entities import Chapter
+from utils.helpers import file
 
-http = Http(False)
+# ! 可以通过network提前检测代理
+__IP_POOL = [
+    '218.59.139.238:80', '116.117.134.134:9999', '120.232.150.110:80',
+    '116.117.134.134:80', '39.106.223.134:80', '113.214.13.1:1080',
+    '180.250.12.10:80', '116.117.134.134:8081', '123.13.244.153:9999',
+    '62.84.70.130:80', '222.75.0.212:80'
+]
+http = Http(True, __IP_POOL)
 
 
 def get_book_sp(book_name):
@@ -105,15 +113,15 @@ def get_chapter_content(chapter):
     content = sp.find(id='content')
     if (content is None):
         return
-    content.p.decompose()  # 去除底部广告
+    if content.p is not None:
+        content.p.decompose()  # 去除底部广告
     ebook_txts = content.text.replace('\xa0', '')  # 去除特殊字符
     return ebook_txts
 
 
 if __name__ == "__main__":
     # print(get_book('不败战神杨辰'))
-    print(get_chapters('诛仙'))
-    # chapter = Chapter(
-    #     0, 1, "第57章 可怜之人",
-    #     "https://www.zanghaihuatxt.com/11717_11717404/61691315.html")
-    # file.write_book(0, 0, get_chapter_content(chapter))
+    # print(get_chapters('诛仙'))
+    chapter = Chapter(0, 1, "第二章 问讯",
+                      "http://www.xbiquge.la/71/71456/28238040.html")
+    file.write_book(0, 0, get_chapter_content(chapter))
