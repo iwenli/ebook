@@ -7,3 +7,9 @@
 ## 目录和内容 内容较多，暂用多线程
 
 > 参考 worker
+
+
+# 生成依赖
+``` python
+pipreqs . --encoding=utf8 --force
+```

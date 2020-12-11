@@ -5,19 +5,15 @@ License: Copyright © 2020 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-12-04 15:52:07
 LastEditors: iwenli
-<<<<<<< HEAD
-LastEditTime: 2020-12-10 11:05:54
-Description: 新笔趣阁
-=======
-LastEditTime: 2020-12-09 21:59:03
+LastEditTime: 2020-12-11 12:00:38
 Description: 新笔趣阁 http://www.xbiquge.la
->>>>>>> 1c6af9c56fd19fbb8422b972516d899fa823904f
 '''
 __author__ = 'iwenli'
 import sys
 import os
 sys.path.append(os.path.abspath("."))
 from utils.network import Http
+from db.entities import Chapter
 
 http = Http(False)
 
@@ -115,5 +111,9 @@ def get_chapter_content(chapter):
 
 
 if __name__ == "__main__":
-    # print(get_chapters('斗罗大陆4终极斗罗'))
-    print(get_book('不败战神杨辰'))
+    # print(get_book('不败战神杨辰'))
+    print(get_chapters('诛仙'))
+    # chapter = Chapter(
+    #     0, 1, "第57章 可怜之人",
+    #     "https://www.zanghaihuatxt.com/11717_11717404/61691315.html")
+    # file.write_book(0, 0, get_chapter_content(chapter))
