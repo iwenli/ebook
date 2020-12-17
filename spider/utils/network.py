@@ -5,7 +5,7 @@ License: Copyright © 2020 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-11-30 10:41:59
 LastEditors: iwenli
-LastEditTime: 2020-12-11 13:07:45
+LastEditTime: 2020-12-15 12:47:43
 Description: 网络请求
 '''
 __author__ = 'iwenli'
@@ -55,10 +55,12 @@ class Http(object):
         """[对指定站点检查代理]
         """
         ips = []
-        for ip in self.proxy:
+        total = len(self.proxy)
+        for index, ip in enumerate(self.proxy):
             try:
                 proxies = {'http': ip, 'https': ip}
-                response = requests.get(url, proxies=proxies, timeout=5)
+                print(f"[{index}/{total}] {ip}")
+                response = requests.get(url, proxies=proxies, timeout=2)
                 if response.status_code == 200 and '小说' in response.text:
                     ips.append(ip)
             except Exception:
@@ -110,18 +112,17 @@ class Http(object):
         cookie = cookies.get(cookie_name)
         return cookie
 
-    def get_beautifulsoup(self, url):
-        text = self.get_text(url)
+    def get_beautifulsoup(self, url, encoding='utf-8'):
+        text = self.get_text(url, encoding)
         return BeautifulSoup(text, 'html.parser')
 
 
 if __name__ == "__main__":
     __IP_POOL = [
-        '218.59.139.238:80', '116.117.134.134:9999', '120.232.150.110:80',
-        '116.117.134.134:80', '39.106.223.134:80', '113.214.13.1:1080',
-        '180.250.12.10:80', '116.117.134.134:8081', '123.13.244.153:9999',
-        '62.84.70.130:80', '222.75.0.212:80'
+        '120.232.150.110:80', '116.117.134.134:81', '188.113.190.7:80',
+        '218.59.139.238:80', '62.84.70.130:80', '60.246.7.4:8080',
+        '116.117.134.134:9999', '113.214.13.1:1080', '180.250.12.10:80'
     ]
     http = Http(True, __IP_POOL)
-    res = http.get_text('http://www.xbiquge.la/')
+    res = http.check_proxy('http://www.xbiquge.la/')
     print(res)

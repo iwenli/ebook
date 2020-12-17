@@ -5,7 +5,7 @@ License: Copyright © 2020 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-12-06 12:23:37
 LastEditors: iwenli
-LastEditTime: 2020-12-08 17:35:41
+LastEditTime: 2020-12-17 10:02:47
 Description: 入口程序
 '''
 __author__ = 'iwenli'
@@ -35,6 +35,20 @@ def cli():
     """[cli工具]
     """
     print(f"eBook Spider {conf.version} By {conf.autor} ...")
+
+
+@cli.command(name="spiderDownload")
+@click.option("--top", default=100, help='书籍数')
+@click.option("--num", default=10, help='下载章节线程数')
+@click.option("--bid", default=0, help='从id为多少的序号开始取')
+def spiderDownload(top, num, bid=0):
+    key = gen_key()
+    worker = Worker()
+    send_text_email(f"抓取书籍章节 && 下载章节[{key}]-{top}-{num}-{bid}",
+                    "\n".join(sys_info()))
+    worker.run_spider_download(top, 0, num, bid)
+    send_text_email(f"抓取书籍章节 && 下载章节[{key}]-{top}-{num}-{bid}",
+                    "\n".join(sys_info()))
 
 
 @cli.command(name="download")

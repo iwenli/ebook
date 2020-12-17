@@ -3,11 +3,12 @@
 Author: iwenli
 License: Copyright © 2020 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
-Date: 2020-12-04 15:52:07
+Date: 2020-12-15 14:24:30
 LastEditors: iwenli
-LastEditTime: 2020-12-09 22:36:46
-Description: 笔趣阁 https://www.zanghaihuatxt.com/
+LastEditTime: 2020-12-15 16:14:00
+Description: 笔趣阁 https://www.biquge.com.cn/
 '''
+
 __author__ = 'iwenli'
 import sys
 import os
@@ -19,6 +20,8 @@ from db.entities import Chapter
 
 http = Http(False)
 
+__base_url = 'https://www.biquge.com.cn'
+
 
 def get_book_sp(book_name):
     """[获取书籍的beautifulsoup对象]
@@ -26,15 +29,15 @@ def get_book_sp(book_name):
     Args:
         book_name ([string]): [书籍名称]
     """
-    url = f'https://so.biqusoso.com/s.php?siteid=zanghaihuatxt.com&ie=utf-8&q={urllib.parse.quote(book_name)}'
+    url = f'https://www.biquge.com.cn/search.php?q={book_name}'
     # 搜索书籍
     sp = http.get_beautifulsoup(url)
-    tag_a = sp.find('a', text=book_name)
-    if (tag_a is None):
+    tag = sp.find('a', title=book_name)
+    if (tag is None):
         return
 
-    book_url = tag_a.get('href')
-    return http.get_beautifulsoup(book_url, "gbk")
+    book_url = __base_url + tag.get('href')
+    return (http.get_beautifulsoup(book_url), book_url)
 
 
 def get_book(book_name):
@@ -43,16 +46,17 @@ def get_book(book_name):
     Args:
         book_name ([string]): [书籍名称]
     """
-    book_sp = get_book_sp(book_name)
-    if book_sp is None:
+    res = get_book_sp(book_name)
+    if res is None:
         return
+
+    book_sp = res[0]
 
     info = book_sp.find("div", id="info")
     author = info.find("p").string.split("：")[1]
-    status = info.find_all("p")[1].string.split("：")[1]
-    cover = "https://www.zanghaihuatxt.com" + book_sp.find(
-        "div", id="fmimg").find("img").get('src')
-    desc = book_sp.find("div", id="intro").find_all("p")[0].string
+    status = info.find_all("p")[1].text.split("：")[1]
+    cover = book_sp.find("div", id="fmimg").find("img").get('src')
+    desc = book_sp.find("div", id="intro").text
     book = {
         'name': book_name,
         'author': author,
@@ -73,22 +77,21 @@ def get_chapters(book_name):
     Args:
         book_name ([string]): [书籍名称]
     """
-    book_sp = get_book_sp(book_name)
-    if book_sp is None:
+
+    res = get_book_sp(book_name)
+    if res is None:
         return
 
-    tag_dds = book_sp.find_all('dd')
+    book_sp = res[0]
+
+    tags = book_sp.find('div', id="list").find_all('a')
 
     chapters = []
-    for tag in tag_dds[12:]:  # 前12个为最新章节
-        a = tag.find('a')
+    for a in tags:
         name = a.string
         if name is None:
             name = ''
-        chapter = {
-            "name": name,
-            "url": 'https://www.zanghaihuatxt.com' + a.get('href')
-        }
+        chapter = {"name": name, "url": __base_url + a.get('href')}
         chapters.append(chapter)
     return chapters
 
@@ -104,20 +107,29 @@ def get_chapter_content(chapter):
 
     if (chapter.Status == 0):
         # 开始缓存文字
-        sp = http.get_beautifulsoup(chapter.Url, "gbk")
+        sp = http.get_beautifulsoup(chapter.Url)
         content = sp.find(id='content')
         if (content is None):
             return
 
         # content.div.decompose()
-        ebook_txts = content.text.replace('\xa0\xa0\xa0\xa0', '')  # 去除特殊字符
+        ebook_txts = content.text.replace('\xa0\xa0\xa0\xa0', '\n')  # 去除特殊字符
         return ebook_txts
 
 
 if __name__ == "__main__":
-    # print(get_book('不败战神杨辰'))
-    # print(get_chapters('不败战神杨辰'))
-    chapter = Chapter(
-        0, 1, "第57章 可怜之人",
-        "https://www.zanghaihuatxt.com/11717_11717404/61691315.html")
-    file.write_book(0, 0, get_chapter_content(chapter))
+    name = "全民领主之最终浩劫"
+
+    # 1.获取书籍信息
+    book = get_book(name)
+    print(book)
+
+    # 2.获取书籍章节
+    chapters = get_chapters(name)
+    print(chapters)
+
+    # 3. 下载章节
+    if chapters is not None:
+        chapter = Chapter(0, 1, "第一章 测试下载章节", chapters[0]['url'])
+        text = get_chapter_content(chapter)
+        print(text)

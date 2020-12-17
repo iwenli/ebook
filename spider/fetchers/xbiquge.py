@@ -5,7 +5,7 @@ License: Copyright © 2020 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-12-04 15:52:07
 LastEditors: iwenli
-LastEditTime: 2020-12-11 13:14:58
+LastEditTime: 2020-12-15 12:42:11
 Description: 新笔趣阁 http://www.xbiquge.la
 '''
 __author__ = 'iwenli'
@@ -18,10 +18,9 @@ from utils.helpers import file
 
 # ! 可以通过network提前检测代理
 __IP_POOL = [
-    '218.59.139.238:80', '116.117.134.134:9999', '120.232.150.110:80',
-    '116.117.134.134:80', '39.106.223.134:80', '113.214.13.1:1080',
-    '180.250.12.10:80', '116.117.134.134:8081', '123.13.244.153:9999',
-    '62.84.70.130:80', '222.75.0.212:80'
+    '120.232.150.110:80', '116.117.134.134:81', '188.113.190.7:80',
+    '218.59.139.238:80', '62.84.70.130:80', '60.246.7.4:8080',
+    '116.117.134.134:9999', '113.214.13.1:1080', '180.250.12.10:80'
 ]
 http = Http(True, __IP_POOL)
 
@@ -120,8 +119,9 @@ def get_chapter_content(chapter):
 
 
 if __name__ == "__main__":
-    # print(get_book('不败战神杨辰'))
-    # print(get_chapters('诛仙'))
-    chapter = Chapter(0, 1, "第二章 问讯",
-                      "http://www.xbiquge.la/71/71456/28238040.html")
-    file.write_book(0, 0, get_chapter_content(chapter))
+    # print(get_book('斗罗大陆IV终极斗罗'))
+    print(get_chapters('斗罗大陆IV终极斗罗'))
+
+    # chapter = Chapter(0, 1, "第一章 测试章节",
+    #                   "http://www.xbiquge.la/14/14760/10526631.html")
+    # file.write_book(0, 0, get_chapter_content(chapter))

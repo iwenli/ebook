@@ -5,7 +5,7 @@ License: Copyright © 2019 txooo.com Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-12-05 18:55:51
 LastEditors: iwenli
-LastEditTime: 2020-12-08 18:18:20
+LastEditTime: 2020-12-17 09:58:29
 Description: 处理书籍内容   简单的生产者模式
 '''
 __author__ = 'iwenli'
@@ -14,7 +14,7 @@ import time
 from cache import cacheContext
 from queue import Queue
 from threading import Thread
-from fetchers import qdh5, xbqg
+from fetchers import qdh5, fetcher_warp
 from db.entities import EBookSession, BookTask, Book, Category, Chapter
 from pyiwenli.handlers import LogHandler
 from pyiwenli.utils import timeit
@@ -32,7 +32,7 @@ class Worker(object):
         self.__chapter_queue = Queue(0)
 
     @timeit('初始化数据')
-    def __init_data(self, top_book=0, top_chapter=0, fix="[全局]"):
+    def __init_data(self, top_book=0, top_chapter=0, fix="[全局]", **kwargs):
         """[初始化数据]
 
         Args:
@@ -40,19 +40,27 @@ class Worker(object):
             top_chapter ([type]): [章节数]
             fix ([string]): [日志前缀]
         """
+        bid = 0
+        cid = 0
+        if 'bid' in kwargs.keys():
+            bid = kwargs.get('bid')
+        if 'cid' in kwargs.keys():
+            cid = kwargs.get('cid')
+
         self.log.info(
             f"{fix} 开始提取数据[top_book={top_book},top_chapter={top_chapter}]...")
         session = EBookSession()
 
         if top_book > 0:
             books = session.query(Book).filter(Book.Process == False).filter(
-                Book.Id >= 0).limit(top_book).all()
+                Book.Id > bid).limit(top_book).all()
             for book in books:
                 self.__book_queue.put(book)
 
         if top_chapter > 0:
             chapters = session.query(Chapter).filter(
-                Chapter.Status == 0).limit(top_chapter).all()
+                Chapter.Status == 0).filter(
+                    Chapter.Id > cid).limit(top_chapter).all()
             for chapter in chapters:
                 self.__chapter_queue.put(chapter)
 
@@ -79,7 +87,7 @@ class Worker(object):
             index += 1
             msg = f"{fix}[{index}/{self.__book_queue.qsize()}]处理书籍 {book.Id}-{book.Name}"
             try:
-                chapters = xbqg.get_chapters(book.Name)
+                chapters = fetcher_warp.get_chapters(book.Name)
                 if chapters is None:
                     continue
                 total = 0
@@ -136,10 +144,16 @@ class Worker(object):
             chapter = self.__chapter_queue.get()
             msg = f"{fix}[{index}/{self.__chapter_queue.qsize()}]下载章节 {chapter.BookId}-{chapter.Id}-{chapter.Name}"
             try:
-                content = xbqg.get_chapter_content(chapter)
-                if content is None:
-                    self.__chapter_queue.put(chapter)
-                    self.log.warning(f"{msg} 下载内容为空,已经放到任务末尾等待重新执行")
+                content = fetcher_warp.get_chapter_content(chapter)
+                if content is None or len(content) == 0:
+                    if "ErrorCount" not in dir(chapter):
+                        chapter.ErrorCount = 0
+                    if chapter.ErrorCount >= 3:
+                        self.log.error(f"{msg} 重试超过3次任然失败，这就放弃了")
+                    else:
+                        chapter.ErrorCount += 1
+                        self.__chapter_queue.put(chapter)
+                        self.log.warning(f"{msg} 下载内容为空,已经放到任务末尾等待重新执行")
                     continue
 
                 chapter.WordNums = len(content)
@@ -216,7 +230,7 @@ class Worker(object):
             self.log.info(f"{_fix} 开始...")
             if cacheContext.exists_book(book_name) is False:
                 # 不存在
-                book = qdh5.get_book(task.Name)
+                book = fetcher_warp.get_book(task.Name)
                 if book is None:
                     continue
                 model = self.__generate_book_model(**book)
@@ -235,7 +249,7 @@ class Worker(object):
 
     @timeit('分类书籍提取')
     def __spider_book_info_by_category(self):
-        """ 根据 category 抓取 book_info
+        """ 【起点】根据 category 抓取 book_info
         """
 
         fix = "[分类书籍提取]"
@@ -325,17 +339,19 @@ class Worker(object):
     def run_spider_download(self,
                             top_book=1000,
                             top_chapter=1000,
-                            thread_num=5):
+                            thread_num=5,
+                            bid=0):
         """[抓取书籍章节 && 下载章节]
         
         Args:
             top_book ([int]):    [提取书籍数量]
             top_chapter ([int]): [提取章节数量]
-            thread_num ([type]): [下载线程数]
+            thread_num ([int]): [下载线程数]
+            bid ([int]): [从id为此值的序号开始取]
         """
         fix = "[获取&下载章节]"
         self.log.info(f"{fix} 开始执行...")
-        self.__init_data(top_book, top_chapter, fix)
+        self.__init_data(top_book, top_chapter, fix, bid=bid)
         self.__gen_thraed(1, self.__fether_chapter)
         self.__gen_thraed(thread_num, self.__download_chapter)
         self.__wait(fix)
@@ -355,7 +371,7 @@ class Worker(object):
 
     @timeit('抓取分类')
     def run_spider_category(self):
-        """抓取分类
+        """【起点】抓取分类
         """
         fix = "[抓取分类]"
         self.log.info(f"{fix}开始执行...")
@@ -439,4 +455,7 @@ if __name__ == '__main__':
     # # ! 2.分类下载书籍完整信息
     # worker.run_category_spider_download()
     # # worker.run_download(10)
-    print(worker.run_book_zip(1766))
+    # print(worker.run_book_zip(1766))
+
+    # worker.run_spider_download(100, 0, 10)
+    worker.run_download(1000, 10)
