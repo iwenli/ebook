@@ -1,0 +1,15 @@
+{
+  "name": "ebook",
+  "version": "1.0.0",
+  "description": "> https://github.com/siwei-lu/minapp-iconfont",
+  "main": "app.js",
+  "dependencies": {
+    "minapp-iconfont": "^0.0.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

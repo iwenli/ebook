@@ -1,0 +1,3 @@
+<!--pages/category/home/home.wxml-->
+<cu-custom bgColor="bg-gradual-orange" isCustom="{{true}}"><view slot="content">书城</view></cu-custom>
+<text>pages/category/home/home.wxml</text>

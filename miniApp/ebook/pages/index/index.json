@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "city": "/pages/city/home/home",
+    "category": "/pages/category/home/home",
+    "shelf": "/pages/shelf/home/home",
+    "my": "/pages/my/home/home"
+  }
+}

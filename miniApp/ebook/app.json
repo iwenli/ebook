@@ -1,0 +1,20 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/logs/logs",
+    "pages/category/home/home"
+  ],
+  "window": {
+    "navigationBarTitleText": "EBOOK",
+    "navigationBarBackgroundColor": "#39b54a",
+    "navigationStyle": "custom",
+    "navigationBarTextStyle": "white"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "debug": false,
+  "usingComponents": {
+    "iconfont": "minapp-iconfont",
+    "cu-custom": "/assets/colorui/components/cu-custom"
+  }
+}

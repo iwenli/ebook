@@ -1,0 +1,22 @@
+<city wx:if="{{PageCur=='city'}}"></city>
+<category wx:if="{{PageCur=='category'}}"></category>
+<shelf wx:if="{{PageCur=='shelf'}}"></shelf>
+<my wx:if="{{PageCur=='my'}}"></my>
+<view class="cu-bar tabbar bg-white shadow foot">
+  <view bindtap="NavChange" data-cur="city" class="action {{PageCur=='city'?ActionColor:'text-gray'}}">
+    <iconfont icon="{{PageCur=='city'?'city-active':'city'}}"></iconfont>
+    <view class="title">书城</view>
+  </view>
+  <view bindtap="NavChange" data-cur="category" class="action {{PageCur=='category'?ActionColor:'text-gray'}}">
+    <iconfont icon="{{PageCur=='category'?'category-active':'category'}}"></iconfont>
+    <view class="title">分类</view>
+  </view>
+  <view bindtap="NavChange" data-cur="shelf" class="action {{PageCur=='shelf'?ActionColor:'text-gray'}}">
+    <iconfont icon="{{PageCur=='shelf'?'shelf-active':'shelf'}}"></iconfont>
+    <view class="title">书架</view>
+  </view>
+  <view bindtap="NavChange" data-cur="my" class="action {{PageCur=='my'?ActionColor:'text-gray'}}">
+    <iconfont icon="{{PageCur=='my'?'my-active':'my'}}"></iconfont>
+    <view class="title">我的</view>
+  </view>
+</view>
