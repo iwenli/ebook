@@ -12,7 +12,10 @@
     <view class="title">分类</view>
   </view>
   <view bindtap="NavChange" data-cur="shelf" class="action {{PageCur=='shelf'?ActionColor:'text-gray'}}">
-    <iconfont icon="{{PageCur=='shelf'?'shelf-active':'shelf'}}"></iconfont>
+    <view class="cuIcon-cu-image">
+      <iconfont icon="{{PageCur=='shelf'?'shelf-active':'shelf'}}"></iconfont>
+      <view class="cu-tag badge">2</view>
+    </view>
     <view class="title">书架</view>
   </view>
   <view bindtap="NavChange" data-cur="my" class="action {{PageCur=='my'?ActionColor:'text-gray'}}">
