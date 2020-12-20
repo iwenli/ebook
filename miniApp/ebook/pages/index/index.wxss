@@ -22,7 +22,7 @@
 
 /* 底部tabbar */
 .tabbar .action iconfont {
-  font-size: 22px;
+  font-size: 1.4rem;
 }
 .tabbar .action .title {
   margin-top: .25rem;

@@ -1,8 +1,10 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/logs/logs",
-    "pages/category/home/home"
+    "pages/city/home/home",
+    "pages/category/home/home",
+    "pages/shelf/home/home",
+    "pages/my/home/home"
   ],
   "window": {
     "navigationBarTitleText": "EBOOK",

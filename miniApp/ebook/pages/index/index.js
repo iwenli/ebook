@@ -1,6 +1,6 @@
 Page({
   data: {
-    PageCur: 'city',
+    PageCur: 'category',
     ActionColor:'text-orange'
   },
   NavChange(e) {
