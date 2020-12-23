@@ -1,6 +1,21 @@
 // pages/category/home/home.js
+const apis = require('../../../api/apis.js')
+const util = require('../../../utils/util.js')
 const app = getApp()
-Page({
+Component({
+  options: {
+    addGlobalClass: true,
+  },
+  /**
+   * 组件的属性列表
+   */
+  properties: {
+
+  },
+
+  /**
+   * 组件的初始数据
+   */
   data: {
     StatusBar: app.globalData.StatusBar,
     CustomBar: app.globalData.CustomBar,
@@ -8,116 +23,102 @@ Page({
     TabCur: 0,
     MainCur: 0,
     VerticalNavTop: 0,
+    rawList: [],
     list: [],
-    load: true
+    load: true,
+    currentSex: 1,
   },
 
   /**
-   * 生命周期函数--监听页面加载
+   * 组件的方法列表
    */
-  onLoad: function (options) {
-    console.log(options)
-    // wx.showLoading({
-    //   title: '加载中...',
-    //   mask: true
-    // });
-    // let list = [{}];
-    // for (let i = 0; i < 26; i++) {
-    //   list[i] = {};
-    //   list[i].name = String.fromCharCode(65 + i);
-    //   list[i].id = i;
-    // }
-    // console.log(list)
-    // this.setData({
-    //   list: list,
-    //   listCur: list[0]
-    // })
-  },
-
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady: function () {
-    wx.hideLoading()
-  },
-
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload: function () {
-
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh: function () {
-
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom: function () {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage: function () {
-
-  },
-  tabSelect(e) {
-    this.setData({
-      TabCur: e.currentTarget.dataset.id,
-      MainCur: e.currentTarget.dataset.id,
-      VerticalNavTop: (e.currentTarget.dataset.id - 1) * 50
-    })
-  },
-  VerticalMain(e) {
-    let that = this;
-    let list = this.data.list;
-    let tabHeight = 0;
-    if (this.data.load) {
-      for (let i = 0; i < list.length; i++) {
-        let view = wx.createSelectorQuery().select("#main-" + list[i].id);
-        view.fields({
-          size: true
-        }, data => {
-          list[i].top = tabHeight;
-          tabHeight = tabHeight + data.height;
-          list[i].bottom = tabHeight;
-        }).exec();
+  methods: {
+    show() {
+      const list = this.data.rawList.filter(m => m.sex == this.data.currentSex)
+      for (let index = 0; index < list.length; index++) {
+        list[index].index = index
       }
-      that.setData({
-        load: false,
-        list: list
+      this.setData({
+        list: list,
+        TabCur: 0,
+        MainCur: 0,
+        VerticalNavTop: 0
       })
-    }
-    let scrollTop = e.detail.scrollTop + 20;
-    for (let i = 0; i < list.length; i++) {
-      if (scrollTop > list[i].top && scrollTop < list[i].bottom) {
-        that.setData({
-          VerticalNavTop: (list[i].id - 1) * 50,
-          TabCur: list[i].id
+    },
+    tabSexSelect(e) {
+      if (this.data.currentSex != e.currentTarget.dataset.id) {
+        this.setData({
+          currentSex: e.currentTarget.dataset.id * 1
         })
-        return false
+        this.show()
       }
+    },
+    tabSelect(e) {
+      this.setData({
+        TabCur: e.currentTarget.dataset.index,
+        MainCur: e.currentTarget.dataset.index,
+        VerticalNavTop: (e.currentTarget.dataset.index - 1) * 50
+      })
+    },
+    VerticalMain(e) {
+      let that = this;
+      let list = this.data.list;
+      let tabHeight = 0;
+      if (this.data.load) {
+        for (let i = 0; i < list.length; i++) {
+          let view = that.createSelectorQuery().select("#main-" + list[i].index);
+          view.fields({
+            size: true
+          }, data => {
+            list[i].top = tabHeight;
+            tabHeight = tabHeight + data.height;
+            list[i].bottom = tabHeight;
+          }).exec();
+        }
+        that.setData({
+          load: false,
+          list: list
+        })
+      }
+      let scrollTop = e.detail.scrollTop + 20;
+      for (let i = 0; i < list.length; i++) {
+        if (scrollTop > list[i].top && scrollTop < list[i].bottom) {
+          that.setData({
+            VerticalNavTop: (list[i].index - 1) * 50,
+            TabCur: list[i].index
+          })
+          return false
+        }
+      }
+    }
+  },
+  lifetimes: {
+    created() {
+
+    },
+    attached() {
+      apis.getCategoryList({
+        id: -1
+      }).then((res) => {
+        let list = [];
+        res.Data.forEach((category, index) => {
+          list.push({
+            id: category.Id,
+            name: category.Name,
+            parentId: category.ParentId,
+            sex: category.Sex,
+            url: category.Url
+          })
+        });
+        const rawList = util.listConvertToTreeList(list)
+        this.setData({
+          rawList: rawList
+        })
+        this.show()
+      })
+    },
+    ready() {
+      // wx.hideLoading()
     }
   }
 })

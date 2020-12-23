@@ -1,0 +1,47 @@
+<!--pages/category/sub/sub.wxml-->
+<wxs src="./../../../utils/filter.wxs" module="filter" />
+
+<cu-custom bgColor="bg-gradual-orange" isCustom="{{false}}" isBack="{{true}}">
+  <view slot="backText">返回</view>
+  <view slot="content">
+    <text>{{title}}频道</text>
+    <!-- <navigator url="/pages/my/home/home" style="display:inline" bindtap="test">
+      <text class="cuIcon-search"></text>
+    </navigator> -->
+  </view>
+</cu-custom>
+<!-- <scroll-view scroll-x class="bg-gradual-orange nav text-center" style="padding-top:{{StatusBar}}px;">
+  <view class="cu-bar search">
+    <view class="search-form round">
+      <text class="cuIcon-search"></text>
+      <input type="text" placeholder="搜索图片、文章、视频" confirm-type="search"></input>
+    </view>
+    <view class="action">
+      <button class="cu-btn bg-green shadow-blur round">搜索</button>
+    </view>
+  </view>
+</scroll-view> -->
+<view wx:if="{{!hasData}}" class="no-data text-grey">
+  <iconfont icon="nodata-3"></iconfont>
+</view>
+<view class="cu-card article {{isCard?'no-card':''}}" wx:for="{{list}}">
+  <view class="cu-item shadow">
+    <view class="cu-ftag bg-grey">{{item.index}}</view>
+    <view class="content">
+      <image src="{{item.cover}}" mode="widthFix"></image>
+      <view class="warp">
+        <view class="title">{{item.name}}
+        </view>
+        <view class="text-content">{{item.desc}}</view>
+        <view>
+          <view class="cu-tag bg-red light sm round">{{item.author}}</view>
+          <view class="cu-tag bg-green light sm round">{{filter.BOOK_STATUS(item.status)}}</view>
+          <view class="cu-tag bg-orange light sm round">{{filter.BOOK_RATE(item.rate)}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+<view wx:if="{{fetchFinsh}}" class="data-ok text-grey">
+  <iconfont icon="line"></iconfont>
+</view>

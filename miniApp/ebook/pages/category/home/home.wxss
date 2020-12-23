@@ -18,6 +18,7 @@
 .VerticalNav.nav .cu-item.cur {
   background-color: #f1f1f1;
 }
+
 .VerticalNav.nav .cu-item.cur::after {
   content: "";
   width: 8rpx;
@@ -30,9 +31,22 @@
   bottom: 0;
   margin: auto;
 }
-.VerticalBox{
+
+.VerticalBox {
   display: flex;
 }
-.VerticalMain{
+
+.VerticalMain {
   background-color: #f1f1f1;
+}
+
+.nav iconfont {
+  margin-right: 10rpx;
+}
+
+.nav-list{
+  background-color: #fff;
+}
+.nav-li{
+  background-size: unset;
 }

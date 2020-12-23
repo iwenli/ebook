@@ -11,6 +11,7 @@ Page({
     load: true
   },
   onLoad() {
+    console.log(1)
     wx.showLoading({
       title: '加载中...',
       mask: true
