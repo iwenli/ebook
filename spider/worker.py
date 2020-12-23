@@ -5,7 +5,7 @@ License: Copyright © 2019 txooo.com Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-12-05 18:55:51
 LastEditors: iwenli
-LastEditTime: 2020-12-17 09:58:29
+LastEditTime: 2020-12-23 16:15:47
 Description: 处理书籍内容   简单的生产者模式
 '''
 __author__ = 'iwenli'
@@ -446,6 +446,20 @@ class Worker(object):
             self.log.error(f"{fix}异常", stack_info=True)
             return False
 
+    def clean_book_cover(self):
+        """[清洗书籍Cover]
+        """
+        from utils.network import Http
+        http = Http()
+
+        ebook_sesson = EBookSession()
+        books = ebook_sesson.query(Book).all()
+        for book in books:
+            url = http.update_image_by_url(book.Cover)
+            if 'img.txooo.com' in url:
+                book.Cover = url
+                ebook_sesson.commit()
+
 
 if __name__ == '__main__':
     worker = Worker()
@@ -458,4 +472,5 @@ if __name__ == '__main__':
     # print(worker.run_book_zip(1766))
 
     # worker.run_spider_download(100, 0, 10)
-    worker.run_download(1000, 10)
+    # worker.run_download(1000, 10)
+    worker.clean_book_cover()

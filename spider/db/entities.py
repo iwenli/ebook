@@ -5,12 +5,13 @@ License: Copyright © 2020 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-11-30 11:53:12
 LastEditors: iwenli
-LastEditTime: 2020-12-06 11:25:54
+LastEditTime: 2020-12-23 16:28:32
 Description: 数据库操作实体
 '''
 __author__ = 'iwenli'
 
 from utils.config import conf
+from utils.network import Http
 from sqlalchemy import Column, Integer, String, DateTime, BigInteger
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -31,6 +32,7 @@ ebook_engine = create_engine(
 
 EBookEntityBase = declarative_base()
 EBookSession = sessionmaker(bind=ebook_engine)
+http = Http()
 
 
 class BookTask(EBookEntityBase):
@@ -88,6 +90,11 @@ class Book(EBookEntityBase):
         self.CategoryId = id
         self.SubCategoryId = subId
         self.Rate = rate
+
+        url = http.update_image_by_url(cover)
+        if 'pic.txooo.com' in url:
+            cover = url
+            
         self.Cover = cover
 
         if ('连载' in status):

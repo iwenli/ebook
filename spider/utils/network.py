@@ -5,7 +5,7 @@ License: Copyright © 2020 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-11-30 10:41:59
 LastEditors: iwenli
-LastEditTime: 2020-12-15 12:47:43
+LastEditTime: 2020-12-23 16:30:56
 Description: 网络请求
 '''
 __author__ = 'iwenli'
@@ -116,13 +116,32 @@ class Http(object):
         text = self.get_text(url, encoding)
         return BeautifulSoup(text, 'html.parser')
 
+    def update_image_by_url(self, url):
+        """[上传网络图片到图床]
+        url,fotmat,width,height,flag
+        flag:1-width 2-height
+        Args:
+            url ([string]): [网络地址]
+        """
+        try:
+            if 'bookcover.yuewen.com' in url and url.endswith('/150'):
+                url = url[:-4]
+            url = Http.conf.picBedServer + '?tx_down_url=' + url
+            return self.get_text(url).replace('http://', 'https://')
+        except Exception as e:
+            print(f'上传图片[{url}]异常:{e}')
+            return ''
+
 
 if __name__ == "__main__":
-    __IP_POOL = [
-        '120.232.150.110:80', '116.117.134.134:81', '188.113.190.7:80',
-        '218.59.139.238:80', '62.84.70.130:80', '60.246.7.4:8080',
-        '116.117.134.134:9999', '113.214.13.1:1080', '180.250.12.10:80'
-    ]
-    http = Http(True, __IP_POOL)
-    res = http.check_proxy('http://www.xbiquge.la/')
-    print(res)
+    # __IP_POOL = [
+    #     '120.232.150.110:80', '116.117.134.134:81', '188.113.190.7:80',
+    #     '218.59.139.238:80', '62.84.70.130:80', '60.246.7.4:8080',
+    #     '116.117.134.134:9999', '113.214.13.1:1080', '180.250.12.10:80'
+    # ]
+    # http = Http(True, __IP_POOL)
+    # res = http.check_proxy('http://www.xbiquge.la/')
+    # print(res)
+
+    url = 'https://bookcover.yuewen.com/qdbimg/349573/1017488535/150'
+    print(Http().update_image_by_url(url))

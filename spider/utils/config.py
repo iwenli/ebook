@@ -5,7 +5,7 @@ License: Copyright © 2020 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-11-30 11:24:56
 LastEditors: iwenli
-LastEditTime: 2020-12-08 16:53:21
+LastEditTime: 2020-12-23 15:46:18
 Description: ...
 '''
 __author__ = 'iwenli'
@@ -44,6 +44,14 @@ class Conf(ConfigHandler):
         '''
         return ConfigHandler.from_env("http_proxy_base_url",
                                       'http://proxy.iwenli.org/')
+
+    @LazyProperty
+    def picBedServer(self):
+        '''
+        图床地址
+        '''
+        return ConfigHandler.from_env("pic_bed_url",
+                                      'upload.imageserver.com/')
 
     @LazyProperty
     def emailPassword(self):
