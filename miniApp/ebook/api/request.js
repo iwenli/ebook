@@ -39,7 +39,6 @@ const defaultOptions = {
   success: function () {},
   fail: function (err) {
     console.log(err)
-    _showToast("网络错误")
   },
   complete: function () {},
 }
@@ -49,7 +48,7 @@ const defaultOtherOptions = {
   useSuccessCode: true, // 是否检测预定义的http请求的成功状态
   isShowError: true, // 是否显示错误提醒
   globalData: '',
-  timeout: 1000 * 5, //超时时间，单位为毫秒
+  timeout: 1000 * 30, //超时时间，单位为毫秒
 }
 
 // toast提醒函数
@@ -109,7 +108,6 @@ const request = (fetchOptions = {
           } = res
           // 真机wx.toast和showLoading只能同时允许一个出现，故请求完成全部关闭，以便后续能toast提醒
           wx.hideLoading()
-
           // 请求网络成功
           if (errMsg.includes('ok')) {
             // 使用预设的成功状态
@@ -141,10 +139,10 @@ const request = (fetchOptions = {
             newFetchOptions.fail(res)
           }
         },
-        fail: function (...requestResult) {
-          otherOptions.isShowError && _showToast('网络请求失败')
-          newFetchOptions.fail(requestResult)
-          reject(...requestResult)
+        fail: function (res) {
+          otherOptions.isShowError && _showToast(res.errMsg)
+          newFetchOptions.fail(res)
+          reject(res)
         },
         complete: function () {
           newFetchOptions.complete()

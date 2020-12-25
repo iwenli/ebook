@@ -2,6 +2,7 @@
 .cu-card.article>.cu-item,
 .cu-card.article>.cu-item .content {
   padding: 0;
+  height: 320rpx;
 }
 
 .cu-card.article>.cu-item .content .text-content {

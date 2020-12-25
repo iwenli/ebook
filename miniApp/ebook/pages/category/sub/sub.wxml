@@ -5,22 +5,8 @@
   <view slot="backText">返回</view>
   <view slot="content">
     <text>{{title}}频道</text>
-    <!-- <navigator url="/pages/my/home/home" style="display:inline" bindtap="test">
-      <text class="cuIcon-search"></text>
-    </navigator> -->
   </view>
 </cu-custom>
-<!-- <scroll-view scroll-x class="bg-gradual-orange nav text-center" style="padding-top:{{StatusBar}}px;">
-  <view class="cu-bar search">
-    <view class="search-form round">
-      <text class="cuIcon-search"></text>
-      <input type="text" placeholder="搜索图片、文章、视频" confirm-type="search"></input>
-    </view>
-    <view class="action">
-      <button class="cu-btn bg-green shadow-blur round">搜索</button>
-    </view>
-  </view>
-</scroll-view> -->
 <view wx:if="{{!hasData}}" class="no-data text-grey">
   <iconfont icon="nodata-3"></iconfont>
 </view>
@@ -28,7 +14,9 @@
   <view class="cu-item shadow">
     <view class="cu-ftag bg-grey">{{item.index}}</view>
     <view class="content">
-      <image src="{{item.cover}}" mode="widthFix"></image>
+      <image-preload originalImage='{{item.cover}},1,150,150,1' width="240" mode="widthFix" loadmode="widthFix">
+      </image-preload>
+      <!-- <image src="{{item.cover}},1,150,150,1" mode="widthFix"></image> -->
       <view class="warp">
         <view class="title">{{item.name}}
         </view>

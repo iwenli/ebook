@@ -15,6 +15,7 @@
   "debug": false,
   "usingComponents": {
     "iconfont": "minapp-iconfont",
-    "cu-custom": "/assets/colorui/components/cu-custom"
+    "cu-custom": "/assets/colorui/components/cu-custom",
+    "image-preload": "/components/image-preload/index"
   }
 }

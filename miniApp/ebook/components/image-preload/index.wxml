@@ -1,0 +1,9 @@
+<!--components/image-preload/image-preload.wxml-->
+<image wx:if='{{!finishLoadFlag}}' mode="{{loadmode}}" src='{{defaultImage}}'
+  class="{{is_bg?'':'image-class radius'}}" style="height:{{height > 0?height:''}}rpx;width:{{width > 0?width:''}}rpx;">
+  <text wx:if="{{text}}">{{text}}</text>
+</image>
+<image mode='{{mode}}' class='{{finishLoadFlag ? "radius" : "before-load"}} animation-fade' src='{{originalImage}}'
+  bindload='finishLoad' lazy-load style="height:{{height > 0?height:''}}rpx;width:{{width > 0?width:''}}rpx;">
+  <text wx:if="{{text}}">{{text}}</text>
+</image>
