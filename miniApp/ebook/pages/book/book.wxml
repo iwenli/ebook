@@ -1,2 +1,6 @@
 <!--pages/book/book.wxml-->
-<text>pages/book/book.wxml</text>
+<cu-custom bgColor="bg-gradual-orange" isCustom="{{false}}" isBack="{{true}}">
+   <view slot="content">
+    <text>书籍</text>
+  </view>
+</cu-custom>

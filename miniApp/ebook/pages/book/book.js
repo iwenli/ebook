@@ -1,18 +1,29 @@
 // pages/book/book.js
+const apis = require('../../api/apis.js')
+const app = getApp()
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
-
+    bookId: 0,
+    book: null,
+    chapters: [],
+    currentChapterId: 1,
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-
+    const {
+      id,
+    } = options;
+    this.setData({
+      bookId: id
+    })
+    this.fetch()
   },
 
   /**
@@ -62,5 +73,13 @@ Page({
    */
   onShareAppMessage: function () {
 
-  }
+  },
+  fetch: function () {
+    const that = this
+    apis.getBookDetail({
+      id: that.data.bookId
+    }).then((res) => {
+      console.log(res)
+    })
+  },
 })

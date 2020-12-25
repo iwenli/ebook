@@ -10,7 +10,8 @@
 <view wx:if="{{!hasData}}" class="no-data text-grey">
   <iconfont icon="nodata-3"></iconfont>
 </view>
-<view class="cu-card article {{isCard?'no-card':''}}" wx:for="{{list}}">
+<navigator hover-class='none' url="/pages/book/book?id={{item.id}}" wx:for="{{list}}" wx:key="index">
+<view class="cu-card article {{isCard?'no-card':''}}">
   <view class="cu-item shadow">
     <view class="cu-ftag bg-grey">{{item.index}}</view>
     <view class="content">
@@ -30,6 +31,7 @@
     </view>
   </view>
 </view>
+</navigator>
 <view wx:if="{{fetchFinsh}}" class="data-ok text-grey">
   <iconfont icon="line"></iconfont>
 </view>
