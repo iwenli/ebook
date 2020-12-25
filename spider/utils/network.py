@@ -5,7 +5,7 @@ License: Copyright © 2020 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-11-30 10:41:59
 LastEditors: iwenli
-LastEditTime: 2020-12-23 16:30:56
+LastEditTime: 2020-12-24 10:58:38
 Description: 网络请求
 '''
 __author__ = 'iwenli'
@@ -127,7 +127,9 @@ class Http(object):
             if 'bookcover.yuewen.com' in url and url.endswith('/150'):
                 url = url[:-4]
             url = Http.conf.picBedServer + '?tx_down_url=' + url
-            return self.get_text(url).replace('http://', 'https://')
+            new_url = self.get_text(url).replace('http://', 'https://')
+            print(f'{url} => {new_url}')
+            return new_url
         except Exception as e:
             print(f'上传图片[{url}]异常:{e}')
             return ''

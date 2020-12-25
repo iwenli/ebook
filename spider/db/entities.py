@@ -5,11 +5,12 @@ License: Copyright © 2020 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-11-30 11:53:12
 LastEditors: iwenli
-LastEditTime: 2020-12-23 16:28:32
+LastEditTime: 2020-12-25 16:35:05
 Description: 数据库操作实体
 '''
 __author__ = 'iwenli'
 
+from sqlalchemy.sql.elements import conv
 from utils.config import conf
 from utils.network import Http
 from sqlalchemy import Column, Integer, String, DateTime, BigInteger
@@ -91,11 +92,14 @@ class Book(EBookEntityBase):
         self.SubCategoryId = subId
         self.Rate = rate
 
-        url = http.update_image_by_url(cover)
-        if 'pic.txooo.com' in url:
-            cover = url
-            
-        self.Cover = cover
+        if cover is None:
+            self.Cover = 'http://img.txooo.com/2020/12/23/eb7cfc788e22a7e79b1d4e1dabfc192a.jpg'
+        else:
+            url = http.update_image_by_url(cover)
+            if 'img.txooo.com' in url:
+                cover = url
+
+            self.Cover = cover
 
         if ('连载' in status):
             self.Status = 1
