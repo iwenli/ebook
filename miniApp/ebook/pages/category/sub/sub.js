@@ -1,5 +1,6 @@
 // pages/category/sub/sub.js
-const apis = require('../../../api/apis.js')
+const apis = require('../../../api/apis.js');
+const util = require('../../../utils/util.js');
 const app = getApp()
 Page({
   /**
@@ -111,6 +112,7 @@ Page({
           name: book.Name,
           author: book.Author,
           cover: book.Cover,
+          thumCover: util.cdnImageFormatHandler.withWidth(book.Cover, 150),
           desc: book.Desc,
           status: book.Status,
           rate: book.Rate || 10
@@ -124,8 +126,7 @@ Page({
         that.setData({
           hasData: false
         })
-      }
-      else if (res.Total <= list.length) {
+      } else if (res.Total <= list.length) {
         that.setData({
           fetchFinsh: true
         })

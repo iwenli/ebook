@@ -15,13 +15,13 @@
   <view class="cu-item shadow">
     <view class="cu-ftag bg-grey">{{item.index}}</view>
     <view class="content">
-      <image-preload originalImage='{{item.cover}},1,150,150,1' width="240" mode="widthFix" loadmode="widthFix">
+      <image-preload originalImage='{{item.thumCover}}' width="240" mode="widthFix" loadmode="widthFix">
       </image-preload>
       <!-- <image src="{{item.cover}},1,150,150,1" mode="widthFix"></image> -->
       <view class="warp">
         <view class="title">{{item.name}}
         </view>
-        <view class="text-content">{{item.desc}}</view>
+        <view class="text-desc">{{item.desc}}</view>
         <view>
           <view class="cu-tag bg-red light sm round">{{item.author}}</view>
           <view class="cu-tag bg-green light sm round">{{filter.BOOK_STATUS(item.status)}}</view>

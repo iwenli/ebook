@@ -54,11 +54,35 @@ const listConvertToTreeList = list => {
   }
   return list;
 }
+/**
+ * CDN图片格式化
+ * 通过路径参数处理
+ */
+const cdnImageFormatHandler = {
+  withWidth: (url, width) => `${url},1,${width},0,1`,
+  withHeight: (url, height) => `${url},1,0,${height},1`,
+  custom: (url, width, height) => `${url},1,${width},${height},3`,
+  square: (url, val) => `${url},1,${val},${val},3`,
+}
+
+/**
+ * 缓存
+ * 使用小程序 Storage
+ */
+const cacheHandler = {
+  claer: () => wx.clearStorageSync(),
+  set: (key, data) => wx.setStorageSync(key, data),
+  get: (key) => wx.getStorageSync(key),
+  info: () => wx.getStorageInfoSync()
+}
+
 module.exports = {
   formatTime: formatTime,
   promisify: promisify,
   wxPro: wxPro,
-  listConvertToTreeList
+  listConvertToTreeList,
+  cdnImageFormatHandler,
+  cacheHandler
 }
 
 

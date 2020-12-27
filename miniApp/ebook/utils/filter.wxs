@@ -6,6 +6,7 @@ var BOOK_RATE = function (rate) {
   rate = rate * 1
   return rate.toFixed(2) + '分';
 }
+
 module.exports = {
   BOOK_STATUS: BOOK_STATUS,
   BOOK_RATE: BOOK_RATE

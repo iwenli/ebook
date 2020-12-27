@@ -1,6 +1,49 @@
 <!--pages/book/book.wxml-->
-<cu-custom bgColor="bg-gradual-orange" isCustom="{{false}}" isBack="{{true}}">
-   <view slot="content">
-    <text>书籍</text>
+<wxs src="./../../utils/util.wxs" module="util" />
+<scroll-view scroll-y class="DrawerPage {{showChapterUI?'show':''}}" scroll-top="{{scrollTop}}"
+  bindscrolltolower="nextChapterTap" data-append="{{true}}">
+  <cu-custom bgColor="bg-black" isCustom="{{false}}" isBack="{{true}}" class="{{!showConfigUI?'hide':''}}">
+    <view slot="content">
+      <text>{{book.name||'书籍'}}-{{book.author||'无名'}}著</text>
+    </view>
+  </cu-custom>
+  <view class="content-wrap" bindtap="toggleConfigUI"
+    style="font-size:{{config.fontSize}}rpx;line-height:{{config.lineHeight}}rpx">
+    <text decode="{{true}}">
+      {{chapterContent}}
+    </text>
   </view>
-</cu-custom>
+  <view class="chapter-info padding padding-bottom-xs text-grey flex justify-between">
+    <view class="">{{currentChapter.name}}</view>
+    <view class="">进度:{{util.Percentage(currentSerialNums,maxSerialNums)}}%</view>
+  </view>
+  <view class="config-wrap padding-xl {{!showConfigUI?'hide':''}}">
+    <view class="flex margin-bottom-lg">
+      <view class="text-left flex-sub" bindtap="preChapterTap">上一章</view>
+      <view class="flex-treble cu-progress round margin-top xs">
+        <view class="bg-orange" style="width:{{util.Percentage(currentSerialNums,maxSerialNums)}}%;"></view>
+      </view>
+      <view class="text-right flex-sub" bindtap="nextChapterTap" data-append="{{false}}">下一章</view>
+    </view>
+    <view class="flex justify-between config-menu">
+      <view class="" wx:for="{{configMenus}}" wx:key="index" bindtap="configMenuTap" data-action="{{item.name}}">
+        <iconfont icon="{{item.icon}}"></iconfont>
+        <view class="menu-text">{{item.text}}</view>
+      </view>
+    </view>
+  </view>
+</scroll-view>
+<view class="DrawerClose {{showChapterUI?'show':''}}" bindtap="toggleChapterUI">
+  <text class="cuIcon-pullright"></text>
+</view>
+<view class="text-grey DrawerWindow {{showChapterUI?'show':''}}">
+  <scroll-view scroll-y class="DrawerWrap cu-list menu card-menu margin-top-xl margin-bottom-xl shadow-lg"
+    scroll-with-animation scroll-into-view="c-{{currentSerialNums}}">
+    <view class="cu-item arrow {{item.serialNums==currentSerialNums?'current':''}}" wx:for="{{chapters}}"
+      id="c-{{item.serialNums}}" data-serialNums="{{item.serialNums}}" wx:key="index" bindtap="changeChapterTap">
+      <view class="">
+        <text class="">{{item.name}}</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>

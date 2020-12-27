@@ -117,11 +117,10 @@ const request = (fetchOptions = {
                 data
               } = res
               if (successCodes.findIndex((item) => item === statusCode) > -1) {
-                // 成功code，返回requestResult.data和requestResult
-                // !res.Success && _showToast(res.Msg)
+                !data.Success && _showToast(data.Msg) // 业务异常拦截
                 newFetchOptions.success(data, res)
                 resolve(data, res)
-              } else { // 提醒错误，不返回requestResult
+              } else {
                 console.log('非请求成功状态', res)
                 let msg = codeMessage[statusCode] || '未知错误'
                 if (typeof data !== 'undefined' && typeof data.message !== 'undefined') {

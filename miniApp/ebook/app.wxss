@@ -2,6 +2,29 @@
 @import "assets/colorui/icon.wxss";
 
 /**app.wxss**/
+Page {
+  --black-98: rgba(40, 40, 40, .98);
+}
+
+.hide {
+  display: none;
+}
+
+.no-data,
+.data-ok {
+  text-align: center;
+  margin: 50rpx 0;
+}
+
+.no-data {
+  margin-top: 200rpx;
+}
+
+.no-data iconfont {
+  font-size: 200rpx;
+  margin-top: 200rpx;
+}
+
 .scrollPage {
   height: 100vh;
 }
@@ -105,19 +128,4 @@
 
 .text-light {
   font-weight: 300;
-}
-
-.no-data,
-.data-ok {
-  text-align: center;
-  margin: 50rpx 0;
-}
-
-.no-data {
-  margin-top: 200rpx;
-}
-
-.no-data iconfont {
-  font-size: 200rpx;
-  margin-top: 200rpx;
 }

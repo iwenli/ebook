@@ -1,8 +1,8 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/category/sub/sub",
-    "pages/book/book"
+    "pages/book/book",
+    "pages/category/sub/sub"
   ],
   "window": {
     "navigationBarTitleText": "EBOOK",

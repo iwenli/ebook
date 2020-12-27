@@ -3,6 +3,8 @@ App({
   onLaunch: function () {
     wx.getSystemInfo({
       success: e => {
+        console.log(e)
+        this.globalData.sysInfo = e
         this.globalData.StatusBar = e.statusBarHeight;
         let capsule = wx.getMenuButtonBoundingClientRect();
         if (capsule) {
@@ -17,6 +19,8 @@ App({
   },
   globalData: {
     http: 'https://api.iwwei.cn/EBook',
+    sysInfo: {
+    },
     ColorList: [{
         title: '嫣红',
         name: 'red',

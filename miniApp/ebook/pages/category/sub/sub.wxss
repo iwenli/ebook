@@ -5,9 +5,11 @@
   height: 320rpx;
 }
 
-.cu-card.article>.cu-item .content .text-content {
-  height: 5.8em;
-  line-height: 1.4;
+.cu-card.article>.cu-item .content .text-desc {
+  font-size: 24rpx;
+  color: #888;
+  overflow: hidden;
+  margin: 15rpx 0
 }
 
 .cu-card>.cu-item {
@@ -27,7 +29,7 @@
 }
 
 .cu-card.article>.cu-item .warp .title {
-  line-height: 80rpx;
+  line-height: 50rpx;
   padding: 0;
 }
 

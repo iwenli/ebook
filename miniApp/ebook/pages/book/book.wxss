@@ -1,1 +1,211 @@
 /* pages/book/book.wxss */
+.content-wrap {
+  padding: 0 30rpx;
+}
+
+.content-wrap text {
+  word-break: break-all;
+  overflow: hidden;
+  text-align: justify;
+}
+
+.config-wrap {
+  /* height: 200rpx; */
+  width: 100%;
+  background: var(--black-98);
+  z-index: 10000;
+  bottom: 0;
+  position: fixed;
+  color: var(--gray);
+  font-size: 26rpx
+}
+
+.config-wrap .margin-top {
+  margin-top: 14rpx;
+}
+
+.config-wrap .flex-treble {
+  flex: 4;
+}
+
+.config-wrap .cu-progress.xs {
+  height: 6rpx;
+}
+
+.config-wrap .config-menu {
+  text-align: center;
+  color: var(--white);
+}
+
+.config-wrap .config-menu iconfont {
+  font-size: 44rpx;
+}
+
+.config-wrap .config-menu .menu-text {
+  font-size: 16rpx;
+}
+
+cu-custom {
+  position: fixed;
+  /* display: none; */
+}
+
+
+.DrawerPage {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  left: 0vw;
+  background: var(--ghostWhite);
+  background-image: url("https://img.txooo.com/2020/12/27/9a763f151efdc1dd841b0d0507b8b162.jpg");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  transition: all 0.4s;
+}
+
+.DrawerPage.show {
+  transform: scale(0.9, 0.9);
+  left: 85vw;
+  box-shadow: 0 0 60rpx rgba(0, 0, 0, 0.2);
+  transform-origin: 0;
+}
+
+.DrawerWindow {
+  position: absolute;
+  width: 85vw;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  transform: scale(0.9, 0.9) translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s;
+}
+
+.DrawerWindow.show {
+  transform: scale(1, 1) translateX(0%);
+  opacity: 1;
+  pointer-events: all;
+}
+
+.DrawerWrap {
+  height: 100vh;
+}
+
+.DrawerClose {
+  position: absolute;
+  width: 40vw;
+  height: 100vh;
+  right: 0;
+  top: 0;
+  color: transparent;
+  padding-bottom: 30rpx;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0.6));
+  letter-spacing: 5px;
+  font-size: 50rpx;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s;
+}
+
+.DrawerClose.show {
+  opacity: 1;
+  pointer-events: all;
+  width: 15vw;
+  color: #fff;
+}
+
+.DrawerPage .cu-bar.tabbar .action button.icon {
+  width: 64rpx;
+  height: 64rpx;
+  line-height: 64rpx;
+  margin: 0;
+  display: inline-block;
+}
+
+.DrawerPage .cu-bar.tabbar .action .cu-avatar {
+  margin: 0;
+}
+
+.DrawerPage .nav {
+  flex: 1;
+}
+
+.DrawerPage .nav .cu-item.cur {
+  border-bottom: 0;
+  position: relative;
+}
+
+.DrawerPage .nav .cu-item.cur::after {
+  content: "";
+  width: 10rpx;
+  height: 10rpx;
+  background-color: currentColor;
+  position: absolute;
+  bottom: 10rpx;
+  border-radius: 10rpx;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+
+.DrawerPage .cu-bar.tabbar .action {
+  flex: initial;
+}
+
+.cu-list .cu-item {
+  min-height: 70rpx;
+  position: relative;
+  display: flex;
+  padding: 0 30rpx;
+  background-color: var(--white);
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cu-list .cu-item:after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  width: 200%;
+  height: 200%;
+  border-bottom: 1rpx solid #ddd;
+  border-radius: inherit;
+  content: " ";
+  transform: scale(.5);
+  transform-origin: 0 0;
+  pointer-events: none
+}
+
+.cu-list .cu-item.arrow:before {
+  position: absolute;
+  top: 0;
+  right: 30rpx;
+  bottom: 0;
+  display: block;
+  margin: auto;
+  width: 30rpx;
+  height: 30rpx;
+  color: var(--grey);
+  content: "\e6a3";
+  text-align: center;
+  font-size: 34rpx;
+  font-family: "cuIcon";
+  line-height: 30rpx
+}
+
+.cu-list .current {
+  color: var(--orange)
+}
+
+.chapter-info {
+  position: fixed;
+  bottom: 0;
+  background-image: linear-gradient(180deg, rgba(0, 0, 0, 0), var(--ghostWhite), var(--ghostWhite));
+  width: 100%;
+  font-size: 20rpx;
+}
