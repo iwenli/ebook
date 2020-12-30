@@ -3,7 +3,7 @@
 
 /**app.wxss**/
 Page {
-  --black-98: rgba(40, 40, 40, .98);
+  --black-98: rgba(26, 26, 26, .98);
 }
 
 .hide {

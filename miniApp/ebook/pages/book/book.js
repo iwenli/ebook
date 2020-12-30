@@ -11,9 +11,20 @@ Page({
   data: {
     config: {
       fontSize: 30,
-      lineHeight: 30 * 1.7
+      lineHeight: 30 * 1.7,
+      bg: {
+        default: ['https://img.txooo.com/2020/12/29/53123300074c65400496b425ebbe0fca.png',
+          'https://img.txooo.com/2020/12/29/1822e3f6d4657fbf6e21905f2ad1af93.png',
+          'https://img.txooo.com/2020/12/29/e97757e2c3b7ab0de139f4f5a144ca13.png',
+          'https://img.txooo.com/2020/12/29/40874b9a751c683bb191c003b81eeab9.png'
+        ],
+        custom: ''
+      },
+      composing: {
+        default: [1, 1.3, 1.7, 2],
+        custom: 0
+      }
     },
-    showConfigUI: false,
     configMenus: [{
       name: 'cata',
       icon: 'cata',
@@ -36,6 +47,7 @@ Page({
       text: '更多'
     }],
     showChapterUI: false,
+    showConfigUIState: 3, // 0隐藏  1主菜单  2选项   3亮度   4阅读模式    5更多
     bookId: 0,
     book: null,
     chapters: [],
@@ -58,6 +70,9 @@ Page({
       bookId: id
     })
     context.fetch()
+    util.wxPro.getScreenBrightness().then((res) => {
+      console.log('getScreenBrightness', res)
+    })
   },
   /**
    * 生命周期函数--监听页面初次渲染完成
@@ -179,11 +194,11 @@ Page({
 
       if (chapters.length > 0) {
         // 延时渲染了目录   解决首屏加载慢的bug
-        setTimeout(() => {
-          context.setData({
-            chapters: chapters
-          })
-        }, 500);
+        // setTimeout(() => {
+        //   context.setData({
+        //     chapters: chapters
+        //   })
+        // }, 500);
       }
     })
   },
@@ -195,9 +210,7 @@ Page({
     console.log(app.globalData.sysInfo.screenHeight - clientY)
     if (clientY > 100 && (app.globalData.sysInfo.screenHeight - clientY) > 150) {
       // 点击中部地区
-      context.setData({
-        showConfigUI: !context.data.showConfigUI
-      })
+      context._toggleConfigUI()
     }
   },
   toggleChapterUI: e => {
@@ -213,8 +226,14 @@ Page({
       case "cata":
         context.setData({
           showChapterUI: true,
-          showConfigUI: false,
+          showconfigMainUI: false,
         })
+        break;
+      case "options":
+        context._toggleConfigUI(2)
+        break;
+      case "light":
+        context._toggleConfigUI(3)
         break;
       default:
         break;
@@ -251,6 +270,25 @@ Page({
       context._changeChapter(serialnums)
     }
   },
+  sliderChange: (e) => {
+    const {
+      action
+    } = e.currentTarget.dataset
+    const value = e.detail.value
+    console.warn(action, value)
+    if (action === "chapterChange") {
+      context._changeChapter(value)
+    } else if (action === "lightChange") {
+      util.wxPro.setScreenBrightness({
+        value: value
+      }).then((res) => {
+        console.log('setScreenBrightness', res)
+      })
+    }
+  },
+  sliderChanging: (e) => {
+    console.log(e)
+  },
   nextChapter: (append = false) => {
     let cur = context.data.currentSerialNums
     if (cur < context.data.maxSerialNums) {
@@ -270,5 +308,24 @@ Page({
       currentSerialNums: serialNums
     })
     context.fetchChapterContent(append)
-  }
+  },
+  /**
+   * 配置菜单的显示样式
+   * state:0隐藏  1主菜单  2选项   3亮度   4阅读模式    5更多
+   */
+  _toggleConfigUI: (state = -1) => {
+    if (state === -1) {
+      // 默认为切换显示隐藏
+      state = context.data.showConfigUIState
+      if (state === 0) {
+        state = 1
+      } else {
+        state = 0
+      }
+    }
+    console.warn('showConfigUIState', state)
+    context.setData({
+      showConfigUIState: state
+    })
+  },
 })

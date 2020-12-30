@@ -2,7 +2,7 @@
 <wxs src="./../../utils/util.wxs" module="util" />
 <scroll-view scroll-y class="DrawerPage {{showChapterUI?'show':''}}" scroll-top="{{scrollTop}}"
   bindscrolltolower="nextChapterTap" data-append="{{true}}">
-  <cu-custom bgColor="bg-black" isCustom="{{false}}" isBack="{{true}}" class="{{!showConfigUI?'hide':''}}">
+  <cu-custom bgColor="bg-black" isCustom="{{false}}" isBack="{{true}}" class="{{showConfigUIState!==1?'hide':''}}">
     <view slot="content">
       <text>{{book.name||'书籍'}}-{{book.author||'无名'}}著</text>
     </view>
@@ -17,18 +17,126 @@
     <view class="">{{currentChapter.name}}</view>
     <view class="">进度:{{util.Percentage(currentSerialNums,maxSerialNums)}}%</view>
   </view>
-  <view class="config-wrap padding-xl {{!showConfigUI?'hide':''}}">
-    <view class="flex margin-bottom-lg">
-      <view class="text-left flex-sub" bindtap="preChapterTap">上一章</view>
-      <view class="flex-treble cu-progress round margin-top xs">
-        <view class="bg-orange" style="width:{{util.Percentage(currentSerialNums,maxSerialNums)}}%;"></view>
+  <view class="config-wrap">
+    <view id="configMain" class="padding-xl padding-top {{showConfigUIState!==1?'hide':''}}">
+      <view class="flex margin-bottom-lg align-center">
+        <view class="text-left flex-sub" bindtap="preChapterTap">上一章</view>
+        <!-- <view class="flex-treble cu-progress round margin-top xs">
+          <view class="bg-orange" style="width:{{util.Percentage(currentSerialNums,maxSerialNums)}}%;"></view>
+        </view> -->
+        <view class="flex-treble margin-top xs">
+          <slider min="{{1}}" max="{{maxSerialNums}}" value="{{currentSerialNums}}" block-size="16"
+            block-color="var(--gray)" activeColor="var(--orange)" backgroundColor="#3F3E43" bindchange="sliderChange"
+            data-action="chapterChange" />
+        </view>
+        <view class="text-right flex-sub" bindtap="nextChapterTap" data-append="{{false}}">下一章</view>
       </view>
-      <view class="text-right flex-sub" bindtap="nextChapterTap" data-append="{{false}}">下一章</view>
+      <view class="flex justify-between config-menu">
+        <view class="" wx:for="{{configMenus}}" wx:key="index" bindtap="configMenuTap" data-action="{{item.name}}">
+          <iconfont icon="{{item.icon}}"></iconfont>
+          <view class="menu-text">{{item.text}}</view>
+        </view>
+      </view>
     </view>
-    <view class="flex justify-between config-menu">
-      <view class="" wx:for="{{configMenus}}" wx:key="index" bindtap="configMenuTap" data-action="{{item.name}}">
-        <iconfont icon="{{item.icon}}"></iconfont>
-        <view class="menu-text">{{item.text}}</view>
+    <view id="configOpation" class="padding-xl {{showConfigUIState!==2?'hide':''}}">
+      <view class="font-size  flex flex-wrap align-center">
+        <view class="basis-xs">
+          <view class="text-left">字号</view>
+        </view>
+        <view class="basis-xl">
+          <view class="grid col-2">
+            <view class="padding-right-sm">
+              <button class="cu-btn round line-white text-while">大</button>
+            </view>
+            <view class="padding-left-sm">
+              <button class="cu-btn round line-white text-while">小</button>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="composing flex flex-wrap align-center margin-top-lg">
+        <view class="basis-xs">
+          <view class="text-left">排版</view>
+        </view>
+        <view class="basis-xl">
+          <view class="flex">
+            <view class="padding-right-sm flex-sub">
+              <button class="cu-btn round line-white text-while icon">
+                <iconfont icon="line5"></iconfont>
+              </button>
+            </view>
+            <view class="padding-right-sm flex-sub">
+              <button class="cu-btn round line-white text-while icon">
+                <iconfont icon="line4"></iconfont>
+              </button>
+            </view>
+            <view class="padding-right-sm flex-sub">
+              <button class="cu-btn round line-white text-while icon">
+                <iconfont icon="line3"></iconfont>
+              </button>
+            </view>
+            <view class="padding-right-sm flex-sub">
+              <button class="cu-btn round line-white text-while icon active">
+                <iconfont icon="line2"></iconfont>
+              </button>
+            </view>
+            <view class="padding-left-sm flex-treble">
+              <button class="cu-btn round line-white text-while">
+                自定义排版
+              </button>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="background flex flex-wrap align-center margin-top-lg">
+        <view class="basis-xs">
+          <view class="text-left">背景</view>
+        </view>
+        <view class="basis-xl">
+          <view class="flex">
+            <view class="padding-right-sm flex-sub">
+              <button class="cu-btn round icon bg-mauve">
+              </button>
+            </view>
+            <view class="padding-right-sm flex-sub">
+              <button class="cu-btn round icon active">
+              </button>
+            </view>
+            <view class="padding-right-sm flex-sub">
+              <button class="cu-btn round icon">
+              </button>
+            </view>
+            <view class="padding-right-sm flex-sub">
+              <button class="cu-btn round icon">
+              </button>
+            </view>
+            <view class="padding-left-sm flex-treble">
+              <button class="cu-btn round line-white text-while">
+                更多
+              </button>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view id="configLight" class="padding-xl {{showConfigUIState!==3?'hide':''}}">
+      <view class="flex">
+        <view class="flex-sub margin-right">
+          <button class="cu-btn round line-white text-while">护眼模式</button>
+        </view>
+        <view class="flex-sub  margin-left">
+          <button class="cu-btn round line-white text-while">夜间模式</button>
+        </view>
+      </view>
+      <view class="flex align-center margin-top-sm">
+        <view class="text-left" style="flex:0.2">亮度</view>
+        <view class="margin-top xs flex-sub">
+          <slider min="0" max="1" step="0.01" value="0" block-size="16" block-color="var(--gray)"
+            activeColor="var(--orange)" backgroundColor="#3F3E43" bindchange="sliderChange" data-action="lightChange" />
+        </view>
+        <view class="text-right" style="flex:0.35">
+          <button class="cu-btn round line-white text-while">系统</button>
+        </view>
       </view>
     </view>
   </view>
