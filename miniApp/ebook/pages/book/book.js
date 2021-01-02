@@ -10,19 +10,39 @@ Page({
    */
   data: {
     config: {
-      fontSize: 30,
-      lineHeight: 30 * 1.7,
+      fontSize: 36,
       bg: {
-        default: ['https://img.txooo.com/2020/12/29/53123300074c65400496b425ebbe0fca.png',
-          'https://img.txooo.com/2020/12/29/1822e3f6d4657fbf6e21905f2ad1af93.png',
-          'https://img.txooo.com/2020/12/29/e97757e2c3b7ab0de139f4f5a144ca13.png',
-          'https://img.txooo.com/2020/12/29/40874b9a751c683bb191c003b81eeab9.png'
+        default: [,
+          '',
+          '',
+          ''
         ],
-        custom: ''
+        default: [{
+          bgUrl: 'https://img.txooo.com/2020/12/29/53123300074c65400496b425ebbe0fca.png',
+          colorVar: 'black'
+        }, {
+          bgUrl: 'https://img.txooo.com/2020/12/29/1822e3f6d4657fbf6e21905f2ad1af93.png',
+          colorVar: 'black'
+        }, {
+          bgUrl: 'https://img.txooo.com/2020/12/29/e97757e2c3b7ab0de139f4f5a144ca13.png',
+          colorVar: 'black'
+        }, {
+          bgUrl: 'https://img.txooo.com/2020/12/29/40874b9a751c683bb191c003b81eeab9.png',
+          colorVar: 'gray'
+        }],
+        customValue: {},
+        index: 1
       },
       composing: {
-        default: [1, 1.3, 1.7, 2],
-        custom: 0
+        default: [1, 1.25, 1.5, 1.75],
+        value: 1.5
+      },
+      light: {
+        system: true, // 启用系统亮度
+        night: false, // 启用夜间模式
+        eyes: false, // 启用护眼模式
+        systemValue: 0, // 系统亮度
+        customValue: 0, // 用户定义亮度
       }
     },
     configMenus: [{
@@ -47,7 +67,7 @@ Page({
       text: '更多'
     }],
     showChapterUI: false,
-    showConfigUIState: 3, // 0隐藏  1主菜单  2选项   3亮度   4阅读模式    5更多
+    showConfigUIState: 0, // 0隐藏  1主菜单  2选项   3亮度   4阅读模式    5更多
     bookId: 0,
     book: null,
     chapters: [],
@@ -71,7 +91,10 @@ Page({
     })
     context.fetch()
     util.wxPro.getScreenBrightness().then((res) => {
-      console.log('getScreenBrightness', res)
+      context.setData({
+        'config.light.system': true,
+        'config.light.systemValue': res.value,
+      })
     })
   },
   /**
@@ -194,11 +217,11 @@ Page({
 
       if (chapters.length > 0) {
         // 延时渲染了目录   解决首屏加载慢的bug
-        // setTimeout(() => {
-        //   context.setData({
-        //     chapters: chapters
-        //   })
-        // }, 500);
+        setTimeout(() => {
+          context.setData({
+            chapters: chapters
+          })
+        }, 500);
       }
     })
   },
@@ -270,6 +293,40 @@ Page({
       context._changeChapter(serialnums)
     }
   },
+  changeComposingTap: (e) => {
+    const {
+      value
+    } = e.currentTarget.dataset
+    if (context.data.config.composing.value !== value) {
+      context.setData({
+        'config.composing.value': value
+      })
+    }
+  },
+  changeFontSizeTap: (e) => {
+    const {
+      action
+    } = e.currentTarget.dataset
+    let fontSize = context.data.config.fontSize
+    if (action === 'up') {
+      fontSize += 2;
+    } else {
+      fontSize -= 2;
+    }
+    context.setData({
+      'config.fontSize': fontSize
+    })
+  },
+  changeBgTap: (e) => {
+    const {
+      index
+    } = e.currentTarget.dataset
+    if (context.data.config.bg.index !== index) {
+      context.setData({
+        'config.bg.index': index
+      })
+    }
+  },
   sliderChange: (e) => {
     const {
       action
@@ -277,17 +334,46 @@ Page({
     const value = e.detail.value
     console.warn(action, value)
     if (action === "chapterChange") {
+      // 修改章节的 slider
       context._changeChapter(value)
     } else if (action === "lightChange") {
-      util.wxPro.setScreenBrightness({
-        value: value
-      }).then((res) => {
-        console.log('setScreenBrightness', res)
-      })
+      // 修改亮度的 slider
+      context._setScreenBrightness(value, false)
     }
   },
   sliderChanging: (e) => {
     console.log(e)
+  },
+  toggleEnable: (e) => {
+    const {
+      action
+    } = e.currentTarget.dataset
+    // 先修改启用状态，再执行动作（再动作中修改动作值）
+    const enable = !context.data.config.light[action]
+    const enableDesc = enable ? '启用' : '关闭'
+    const key = `config.light.${action}`
+    context.setData({
+      [key]: enable
+    })
+    if (action === "system") {
+      // 系统亮度
+      const value = enable ? context.data.config.light.systemValue : context.data.config.light.customValue
+      context._setScreenBrightness(value, enable)
+    } else if (action === "eyes") {
+      // 护眼模式
+      wx.showToast({
+        title: '护眼模式' + enableDesc,
+        icon: 'none',
+        duration: 1000
+      })
+    } else if (action === "night") {
+      // 夜间模式
+      wx.showToast({
+        title: '夜间模式' + enableDesc,
+        icon: 'none',
+        duration: 1000
+      })
+    }
   },
   nextChapter: (append = false) => {
     let cur = context.data.currentSerialNums
@@ -328,4 +414,25 @@ Page({
       showConfigUIState: state
     })
   },
+  _setScreenBrightness: (value, enable) => {
+    console.warn('_setScreenBrightness', value, enable)
+    util.wxPro.setScreenBrightness({
+      value: value
+    })
+
+    if (!enable && value !== context.data.config.light.customValue) {
+      // 禁用系统亮度  需要判断是否是新的customValue
+      let newData = {
+        "config.light.customValue": value
+      }
+      // 直接修改亮度值需要禁用
+      if (context.data.config.light.system) {
+        newData = {
+          ...newData,
+          "config.light.system": false
+        }
+      }
+      context.setData(newData)
+    }
+  }
 })

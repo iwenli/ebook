@@ -1,6 +1,7 @@
 /* pages/book/book.wxss */
 .content-wrap {
   padding: 0 30rpx;
+  min-height: 100%;
 }
 
 .content-wrap text {
@@ -234,4 +235,23 @@ cu-custom {
 
 .composing button.active {
   color: var(--orange);
+}
+
+#configLight button.active {
+  color: var(--orange);
+}
+
+/*护眼模式*/
+.eyes {
+  box-shadow: inset 1000px 2000px 2000px rgba(204, 232, 207, .2);
+}
+
+/*夜间模式*/
+.night {
+  background-color: black !important;
+  background-image: none !important;
+  color: var(--gray) !important
+}
+.night .cu-item {
+  background-color: var(--black);
 }

@@ -1,19 +1,21 @@
 <!--pages/book/book.wxml-->
 <wxs src="./../../utils/util.wxs" module="util" />
-<scroll-view scroll-y class="DrawerPage {{showChapterUI?'show':''}}" scroll-top="{{scrollTop}}"
+<scroll-view scroll-y class="DrawerPage {{showChapterUI?'show':''}} {{config.light.eyes?'eyes':''}} {{config.light.night?'night':''}}" scroll-top="{{scrollTop}}"
   bindscrolltolower="nextChapterTap" data-append="{{true}}">
   <cu-custom bgColor="bg-black" isCustom="{{false}}" isBack="{{true}}" class="{{showConfigUIState!==1?'hide':''}}">
     <view slot="content">
       <text>{{book.name||'书籍'}}-{{book.author||'无名'}}著</text>
     </view>
   </cu-custom>
-  <view class="content-wrap" bindtap="toggleConfigUI"
-    style="font-size:{{config.fontSize}}rpx;line-height:{{config.lineHeight}}rpx">
-    <text decode="{{true}}">
+  <view class="content-wrap {{config.light.eyes?'eyes':''}} {{config.light.night?'night':''}}" bindtap="toggleConfigUI"
+    style="font-size:{{config.fontSize}}rpx;line-height:{{config.fontSize*config.composing.value}}rpx;background:url('{{config.bg.default[config.bg.index].bgUrl}}');color:var(--{{config.bg.default[config.bg.index].colorVar}})">
+    <text decode="{{true}}" style="background:transparent;">
       {{chapterContent}}
     </text>
   </view>
-  <view class="chapter-info padding padding-bottom-xs text-grey flex justify-between">
+  <view
+    class="chapter-info padding padding-bottom-xs padding-top-xs text-grey flex justify-between {{config.light.eyes?'eyes':''}} {{config.light.night?'night':''}}"
+    style="background:url('{{config.bg.default[config.bg.index].bgUrl}}');config.bg.index === 3 ? 'color:var(--{{config.bg.default[config.bg.index].colorVar}});':''">
     <view class="">{{currentChapter.name}}</view>
     <view class="">进度:{{util.Percentage(currentSerialNums,maxSerialNums)}}%</view>
   </view>
@@ -21,9 +23,6 @@
     <view id="configMain" class="padding-xl padding-top {{showConfigUIState!==1?'hide':''}}">
       <view class="flex margin-bottom-lg align-center">
         <view class="text-left flex-sub" bindtap="preChapterTap">上一章</view>
-        <!-- <view class="flex-treble cu-progress round margin-top xs">
-          <view class="bg-orange" style="width:{{util.Percentage(currentSerialNums,maxSerialNums)}}%;"></view>
-        </view> -->
         <view class="flex-treble margin-top xs">
           <slider min="{{1}}" max="{{maxSerialNums}}" value="{{currentSerialNums}}" block-size="16"
             block-color="var(--gray)" activeColor="var(--orange)" backgroundColor="#3F3E43" bindchange="sliderChange"
@@ -46,10 +45,11 @@
         <view class="basis-xl">
           <view class="grid col-2">
             <view class="padding-right-sm">
-              <button class="cu-btn round line-white text-while">大</button>
+              <button class="cu-btn round line-white text-while" bindtap="changeFontSizeTap" data-action="up">大</button>
             </view>
             <view class="padding-left-sm">
-              <button class="cu-btn round line-white text-while">小</button>
+              <button class="cu-btn round line-white text-while" bindtap="changeFontSizeTap"
+                data-action="down">小</button>
             </view>
           </view>
         </view>
@@ -60,24 +60,10 @@
         </view>
         <view class="basis-xl">
           <view class="flex">
-            <view class="padding-right-sm flex-sub">
-              <button class="cu-btn round line-white text-while icon">
-                <iconfont icon="line5"></iconfont>
-              </button>
-            </view>
-            <view class="padding-right-sm flex-sub">
-              <button class="cu-btn round line-white text-while icon">
-                <iconfont icon="line4"></iconfont>
-              </button>
-            </view>
-            <view class="padding-right-sm flex-sub">
-              <button class="cu-btn round line-white text-while icon">
-                <iconfont icon="line3"></iconfont>
-              </button>
-            </view>
-            <view class="padding-right-sm flex-sub">
-              <button class="cu-btn round line-white text-while icon active">
-                <iconfont icon="line2"></iconfont>
+            <view class="padding-right-sm flex-sub" wx:for="{{config.composing.default}}">
+              <button class="cu-btn round line-white text-while icon {{config.composing.value===item?'active':''}}"
+                bindtap="changeComposingTap" data-value="{{item}}">
+                <iconfont icon="line{{5-index}}"></iconfont>
               </button>
             </view>
             <view class="padding-left-sm flex-treble">
@@ -94,20 +80,9 @@
         </view>
         <view class="basis-xl">
           <view class="flex">
-            <view class="padding-right-sm flex-sub">
-              <button class="cu-btn round icon bg-mauve">
-              </button>
-            </view>
-            <view class="padding-right-sm flex-sub">
-              <button class="cu-btn round icon active">
-              </button>
-            </view>
-            <view class="padding-right-sm flex-sub">
-              <button class="cu-btn round icon">
-              </button>
-            </view>
-            <view class="padding-right-sm flex-sub">
-              <button class="cu-btn round icon">
+            <view class="padding-right-sm flex-sub" wx:for="{{config.bg.default}}">
+              <button class="cu-btn round icon {{index === config.bg.index?'active':''}}" bindtap="changeBgTap"
+                data-index="{{index}}" style="background:url('{{item.bgUrl}}')">
               </button>
             </view>
             <view class="padding-left-sm flex-treble">
@@ -122,29 +97,33 @@
     <view id="configLight" class="padding-xl {{showConfigUIState!==3?'hide':''}}">
       <view class="flex">
         <view class="flex-sub margin-right">
-          <button class="cu-btn round line-white text-while">护眼模式</button>
+          <button class="cu-btn round line-white text-while {{config.light.eyes?'active':''}}" bindtap="toggleEnable"
+            data-action="eyes">护眼模式</button>
         </view>
         <view class="flex-sub  margin-left">
-          <button class="cu-btn round line-white text-while">夜间模式</button>
+          <button class="cu-btn round line-white text-while {{config.light.night?'active':''}}" bindtap="toggleEnable"
+            data-action="night">夜间模式</button>
         </view>
       </view>
       <view class="flex align-center margin-top-sm">
         <view class="text-left" style="flex:0.2">亮度</view>
         <view class="margin-top xs flex-sub">
-          <slider min="0" max="1" step="0.01" value="0" block-size="16" block-color="var(--gray)"
-            activeColor="var(--orange)" backgroundColor="#3F3E43" bindchange="sliderChange" data-action="lightChange" />
+          <slider min="0" max="1" step="0.01" value="{{config.light.customValue}}" block-size="16"
+            block-color="var(--gray)" activeColor="var(--orange)" backgroundColor="#3F3E43" bindchange="sliderChange"
+            data-action="lightChange" />
         </view>
         <view class="text-right" style="flex:0.35">
-          <button class="cu-btn round line-white text-while">系统</button>
+          <button class="cu-btn round line-white text-while {{config.light.system?'active':''}}" bindtap="toggleEnable"
+            data-action="system">系统</button>
         </view>
       </view>
     </view>
   </view>
 </scroll-view>
-<view class="DrawerClose {{showChapterUI?'show':''}}" bindtap="toggleChapterUI">
+<view class="DrawerClose {{showChapterUI?'show':''}} {{config.light.eyes?'eyes':''}} {{config.light.night?'night':''}}" bindtap="toggleChapterUI">
   <text class="cuIcon-pullright"></text>
 </view>
-<view class="text-grey DrawerWindow {{showChapterUI?'show':''}}">
+<view class="text-grey DrawerWindow {{showChapterUI?'show':''}} {{config.light.eyes?'eyes':''}} {{config.light.night?'night':''}}">
   <scroll-view scroll-y class="DrawerWrap cu-list menu card-menu margin-top-xl margin-bottom-xl shadow-lg"
     scroll-with-animation scroll-into-view="c-{{currentSerialNums}}">
     <view class="cu-item arrow {{item.serialNums==currentSerialNums?'current':''}}" wx:for="{{chapters}}"
