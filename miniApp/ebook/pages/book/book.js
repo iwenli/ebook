@@ -12,11 +12,6 @@ Page({
     config: {
       fontSize: 36,
       bg: {
-        default: [,
-          '',
-          '',
-          ''
-        ],
         default: [{
           bgUrl: 'https://img.txooo.com/2020/12/29/53123300074c65400496b425ebbe0fca.png',
           colorVar: 'black'
