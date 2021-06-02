@@ -5,7 +5,7 @@ License: Copyright © 2020 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-12-15 12:29:09
 LastEditors: iwenli
-LastEditTime: 2020-12-16 12:40:42
+LastEditTime: 2021-06-02 12:42:55
 Description: 对抓取进行封装
 '''
 __author__ = 'iwenli'
@@ -18,6 +18,7 @@ from fetchers import qdh5
 from fetchers import xbiquge
 from fetchers import a230book
 from fetchers import biquge
+from fetchers import qidianxs
 from db.entities import Chapter
 from utils.helpers import file
 
@@ -71,6 +72,8 @@ def get_chapter_content(chapter):
     if (chapter is None):
         return
 
+    if 'qidianxs.com' in chapter.Url:
+        return qidianxs.get_chapter_content(chapter)
     if 'zanghaihuatxt.com' in chapter.Url:
         return zanghaihuatxt.get_chapter_content(chapter)
     elif 'xbiquge.la' in chapter.Url:

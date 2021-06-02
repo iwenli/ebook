@@ -5,7 +5,7 @@ License: Copyright © 2019 txooo.com Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-12-05 18:55:51
 LastEditors: iwenli
-LastEditTime: 2020-12-24 13:02:55
+LastEditTime: 2021-06-02 12:48:40
 Description: 处理书籍内容   简单的生产者模式
 '''
 __author__ = 'iwenli'
@@ -14,7 +14,7 @@ import time
 from cache import cacheContext
 from queue import Queue
 from threading import Thread
-from fetchers import qdh5, fetcher_warp
+from fetchers import qdh5, fetcher_warp, qidianxs
 from db.entities import EBookSession, BookTask, Book, Category, Chapter
 from pyiwenli.handlers import LogHandler
 from pyiwenli.utils import timeit
@@ -190,7 +190,7 @@ class Worker(object):
         """
         # {
         #     'name': name,
-        #     'author': author.replace('\n', ''),
+        #     'author': author.replace('\n', ''),·
         #     'category': categorys[0],
         #     'subcategory': categorys[1],
         #     'rate': rate,
@@ -340,7 +340,8 @@ class Worker(object):
                             top_book=1000,
                             top_chapter=1000,
                             thread_num=5,
-                            bid=0):
+                            bid=0,
+                            cid=0):
         """[抓取书籍章节 && 下载章节]
         
         Args:
@@ -351,7 +352,7 @@ class Worker(object):
         """
         fix = "[获取&下载章节]"
         self.log.info(f"{fix} 开始执行...")
-        self.__init_data(top_book, top_chapter, fix, bid=bid)
+        self.__init_data(top_book, top_chapter, fix, bid=bid, cid=cid)
         self.__gen_thraed(1, self.__fether_chapter)
         self.__gen_thraed(thread_num, self.__download_chapter)
         self.__wait(fix)
@@ -461,6 +462,40 @@ class Worker(object):
                 book.Cover = url
                 ebook_sesson.commit()
 
+    def run_download_book_once(self, bookId, bookUrl):
+        ebook_session = EBookSession()
+        book = ebook_session.query(Book).filter(Book.Id == bookId).first()
+        msg = f"/{self.__book_queue.qsize()}]处理书籍 {book.Id}-{book.Name}"
+        try:
+            chapters = qidianxs.get_chapters(book.Name, bookUrl)
+            if chapters is None:
+                return
+            total = 0
+            for i, chapter in enumerate(chapters):
+                total = i + 1
+                model = Chapter(book.Id, total, chapter['name'],
+                                chapter['url'])
+                # 加入数据库
+                ebook_session.add(model)
+                ebook_session.commit()
+
+                # 加入到 queue
+                self.__chapter_queue.put(model)
+
+            # 更新书籍状态
+            ebook_session.query(Book).filter(Book.Id == book.Id).update(
+                {"Process": True})
+            ebook_session.commit()
+
+            self.log.info(f"{msg} ,  提取到章节 {total} 条,已加入待下载任务")
+
+        except Exception:
+            self.log.error(f"{msg} 异常", exc_info=True)
+            self.__book_queue.put(book)
+            self.log.warning(f"{msg} 异常,已经放到任务末尾等待重新执行")
+
+        ebook_session.close()
+
 
 if __name__ == '__main__':
     worker = Worker()
@@ -470,10 +505,20 @@ if __name__ == '__main__':
     # # ! 2.分类下载书籍完整信息
     # worker.run_category_spider_download()
     # # worker.run_download(10)
-    # print(worker.run_book_zip(1766))
+    # print(worker.run_book_zip(20587))
 
-    # worker.run_spider_download(100, 0, 10)
-    # worker.run_download(1000, 10)
+    # worker.run_spider_download(0, 1000, 5, 100000, 2823901)
+    # worker.run_download(20000, 10)
 
     # ! 3.清洗书籍封面
-    worker.clean_book_cover()
+    # worker.clean_book_cover()
+
+    # ! 4.书籍任务
+    # worker.run_task_spider_download()
+
+    # ! 5.指定书籍 地址下载
+    # worker.run_download_book_once(
+    #     20588, 'http://qidianxs.com/html/35/35164/index.html')
+
+    # ! 6.压缩书籍
+    worker.run_book_zip(20588)

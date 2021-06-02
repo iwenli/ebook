@@ -5,7 +5,7 @@ License: Copyright © 2020 iwenli.org Inc. All rights reserved.
 Github: https://github.com/iwenli
 Date: 2020-11-30 11:24:56
 LastEditors: iwenli
-LastEditTime: 2020-12-23 15:46:18
+LastEditTime: 2021-06-02 11:25:37
 Description: ...
 '''
 __author__ = 'iwenli'
@@ -33,9 +33,10 @@ class Conf(ConfigHandler):
         '''
         ebook数据库串
         '''
-        return ConfigHandler.from_env(
-            "ebook_db_conf",
-            'mysql+pymysql://username:paaword@0.0.0.0/database?charset=utf8')
+        return 'mysql+pymysql://ebook:zyl521+db@152.136.211.52/ebook?charset=utf8'
+        # ConfigHandler.from_env(
+        #     "ebook_db_conf",
+        #     'mysql+pymysql://username:paaword@0.0.0.0/database?charset=utf8')
 
     @LazyProperty
     def httpProxyBaseUrl(self):
@@ -50,8 +51,7 @@ class Conf(ConfigHandler):
         '''
         图床地址
         '''
-        return ConfigHandler.from_env("pic_bed_url",
-                                      'upload.imageserver.com/')
+        return ConfigHandler.from_env("pic_bed_url", 'upload.imageserver.com/')
 
     @LazyProperty
     def emailPassword(self):
